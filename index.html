@@ -541,13 +541,16 @@ function speak(text, lang="en-US"){
   $("toggleLang").addEventListener("click", () => {
     startWithEnglish = !startWithEnglish;
     $("toggleLang").textContent = startWithEnglish ? "התחל מאנגלית" : "התחל מעברית";
+
+
+    renderFlash();
+  });
+
 $("speakFlash").addEventListener("click", () => {
   const item = flashList[flashIndex];
   speak(item.en, "en-US");
 });
 
-    renderFlash();
-  });
   renderFlash();
 
   // Matching game
