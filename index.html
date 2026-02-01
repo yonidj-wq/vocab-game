@@ -3,761 +3,817 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>משחקי אוצר מילים</title>
+  <title>Unit 2 - משחק הכנה</title>
   <style>
-    :root{
-      --bg:#0b1220;
-      --card:#121b2f;
-      --card2:#0f172a;
-      --text:#e8eefc;
-      --muted:#a9b4d0;
-      --good:#22c55e;
-      --bad:#ef4444;
-      --accent:#60a5fa;
-      --line:rgba(255,255,255,.12);
-      --shadow: 0 10px 25px rgba(0,0,0,.28);
-      --radius: 14px;
-      --font: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+    :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+    body { margin:0; background:#f6f7fb; color:#111; }
+    header { background:#111827; color:#fff; padding:14px 16px; }
+    header h1 { margin:0; font-size:18px; }
+    header p { margin:6px 0 0; opacity:.9; font-size:13px; }
+
+    main { padding:14px; max-width: 980px; margin: 0 auto; }
+
+    .card {
+      background:#fff; border:1px solid #e5e7eb; border-radius:16px; padding:14px; margin-bottom:12px;
+      box-shadow: 0 1px 0 rgba(0,0,0,.02);
     }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family:var(--font);
-      background: radial-gradient(900px 500px at 20% 0%, rgba(96,165,250,.18), transparent 60%),
-                  radial-gradient(900px 500px at 90% 40%, rgba(34,197,94,.12), transparent 60%),
-                  var(--bg);
-      color:var(--text);
+    .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .row > * { flex: 1 1 auto; }
+    .muted { color:#6b7280; font-size:13px; }
+    .btn {
+      border:1px solid #d1d5db; background:#fff; padding:10px 12px; border-radius:12px;
+      cursor:pointer; font-weight:800;
     }
-    header{
-      padding:20px 16px 10px;
-      max-width:1100px;
-      margin:0 auto;
-    }
-    h1{margin:0 0 6px;font-size:22px}
-    .sub{color:var(--muted);font-size:14px;line-height:1.4}
-    .wrap{max-width:1100px;margin:0 auto;padding:12px 16px 30px}
-    .topbar{
-      display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;
-      background:rgba(255,255,255,.04);
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      padding:10px 12px;
-      box-shadow:var(--shadow);
-      margin:12px 0 14px;
-    }
-    .tabs{display:flex;gap:8px;flex-wrap:wrap}
-    .tab{
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.04);
-      color:var(--text);
-      padding:8px 10px;
-      border-radius:999px;
-      cursor:pointer;
-      font-size:14px;
-      user-select:none;
-    }
-    .tab.active{background:rgba(96,165,250,.18);border-color:rgba(96,165,250,.45)}
-    .stats{display:flex;gap:12px;flex-wrap:wrap;align-items:center;color:var(--muted);font-size:14px}
-    .pill{
-      display:inline-flex;gap:8px;align-items:center;
-      padding:6px 10px;border-radius:999px;
-      border:1px solid var(--line);background:rgba(255,255,255,.03);
-    }
-    .btn{
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.06);
-      color:var(--text);
-      padding:9px 12px;
-      border-radius:12px;
-      cursor:pointer;
-      font-size:14px;
-      user-select:none;
-    }
-    .btn.primary{background:rgba(34,197,94,.16);border-color:rgba(34,197,94,.4)}
-    .btn.danger{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.35)}
-    .grid{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:12px;
-    }
-    @media (min-width: 900px){
-      .grid.two{grid-template-columns: 1fr 1fr}
-    }
-    .panel{
-      background:rgba(255,255,255,.04);
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      padding:14px;
-      box-shadow:var(--shadow);
-    }
-    .panel h2{margin:0 0 8px;font-size:18px}
-    .panel p{margin:0 0 10px;color:var(--muted);font-size:14px;line-height:1.45}
-    .card{
-      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      padding:14px;
+    .btn.primary { background:#2563eb; border-color:#2563eb; color:#fff; }
+    .btn.good { background:#16a34a; border-color:#16a34a; color:#fff; }
+    .btn.warn { background:#f59e0b; border-color:#f59e0b; color:#111; }
+    .btn:disabled { opacity:.55; cursor:not-allowed; }
+
+    select, input[type="number"] {
+      width:100%; padding:10px 12px; border-radius:12px; border:1px solid #d1d5db; background:#fff;
+      font-size:15px;
     }
 
-    /* Flashcard */
-    .flash{
-      display:flex;flex-direction:column;gap:10px;align-items:center;
-    }
-    .flashbox{
-      width:min(520px,100%);
-      height:220px;
-      perspective: 1000px;
-      cursor:pointer;
-    }
-    .flipper{
-      position:relative;width:100%;height:100%;
-      transform-style:preserve-3d;
-      transition:transform .5s ease;
-    }
-    .flipped .flipper{transform:rotateY(180deg)}
-    .side{
-      position:absolute;inset:0;
-      backface-visibility:hidden;
-      border-radius:var(--radius);
-      border:1px solid var(--line);
-      background:rgba(18,27,47,.7);
-      display:flex;flex-direction:column;align-items:center;justify-content:center;
-      text-align:center;
-      padding:16px;
-    }
-    .side.back{transform:rotateY(180deg);background:rgba(15,23,42,.8)}
-    .word{font-size:30px;font-weight:700;margin:0 0 8px;direction:ltr}
-    .meaning{font-size:20px;margin:0;color:var(--text)}
-    .hint{color:var(--muted);font-size:13px;margin-top:8px}
-    .flashcontrols{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+    .pill { display:inline-flex; align-items:center; gap:8px; padding:8px 10px; border-radius:999px; background:#f3f4f6; border:1px solid #e5e7eb; }
+    .listenBtn { padding:8px 10px; border-radius:999px; border:1px solid #d1d5db; background:#fff; cursor:pointer; font-weight:900; }
+    .hr { height:1px; background:#e5e7eb; margin:12px 0; }
 
-    /* Matching */
-    .matchgrid{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:10px;
-    }
-    @media (min-width: 900px){
-      .matchgrid{grid-template-columns: 1fr 1fr}
-    }
-    .list{
-      display:flex;flex-direction:column;gap:8px;
-    }
-    .tile{
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.04);
-      border-radius:12px;
-      padding:10px 12px;
-      cursor:pointer;
-      user-select:none;
-      display:flex;align-items:center;justify-content:space-between;
-      gap:10px;
-      min-height:42px;
-    }
-    .tile small{color:var(--muted)}
-    .tile.selected{outline:2px solid rgba(96,165,250,.6)}
-    .tile.matched{background:rgba(34,197,94,.14);border-color:rgba(34,197,94,.35);cursor:default}
-    .tile.wrong{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.35)}
-    .ltr{direction:ltr;text-align:left}
+    .bigTitle { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .bigTitle h2 { margin:0; font-size:16px; }
+    .bigTitle .muted { margin:0; }
 
-    /* Quiz */
-    .qword{font-size:24px;font-weight:800;margin:0 0 10px;direction:ltr;text-align:left}
-    .choices{display:grid;grid-template-columns:1fr;gap:8px}
-    @media (min-width: 700px){
-      .choices{grid-template-columns:1fr 1fr}
+    .task {
+      border:1px solid #e5e7eb; border-radius:16px; padding:14px; background:#fff;
+      display:flex; flex-direction:column; gap:10px;
     }
-    .choice{
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.04);
-      border-radius:12px;
-      padding:10px 12px;
-      cursor:pointer;
-      user-select:none;
-      min-height:44px;
-      display:flex;align-items:center;
+    .task .prompt { font-weight:900; font-size:16px; }
+    .task .sub { color:#6b7280; font-size:13px; }
+    .task .answers { display:flex; gap:10px; flex-wrap:wrap; }
+    .task label {
+      border:1px solid #e5e7eb; background:#fff; padding:10px 12px; border-radius:12px; cursor:pointer;
+      display:flex; gap:8px; align-items:center;
     }
-    .choice.good{background:rgba(34,197,94,.14);border-color:rgba(34,197,94,.35)}
-    .choice.bad{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.35)}
-    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
-    .note{color:var(--muted);font-size:13px;margin-top:8px}
+    .task input[type="radio"] { transform: scale(1.1); }
 
-    /* Spelling */
-    .spellbox{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    input[type="text"]{
-      flex:1;
-      min-width:220px;
-      padding:10px 12px;
-      border-radius:12px;
-      border:1px solid var(--line);
-      background:rgba(0,0,0,.18);
-      color:var(--text);
-      font-size:16px;
-      direction:ltr;
-    }
-    .result{
-      margin-top:10px;
-      padding:10px 12px;
-      border-radius:12px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.03);
-      color:var(--muted);
-      font-size:14px;
-      min-height:44px;
-      display:flex;align-items:center;justify-content:space-between;gap:10px
-    }
-    .tag{padding:4px 8px;border-radius:999px;border:1px solid var(--line);font-size:12px;color:var(--muted)}
-    .tag.good{color:var(--good);border-color:rgba(34,197,94,.45)}
-    .tag.bad{color:var(--bad);border-color:rgba(239,68,68,.45)}
-    .hidden{display:none !important}
-.speaker{
-  border:1px solid var(--line);
-  background:rgba(255,255,255,.06);
-  color:var(--text);
-  padding:8px 10px;
-  border-radius:999px;
-  cursor:pointer;
-  user-select:none;
-  font-size:14px;
-}
-.speaker:active{transform:scale(.98)}
+    .feedback { padding:10px 12px; border-radius:12px; border:1px solid #e5e7eb; background:#f9fafb; }
+    .feedback.good { border-color:#16a34a55; background:#16a34a10; }
+    .feedback.bad  { border-color:#ef444455; background:#ef444410; }
 
-    .footer{margin-top:14px;color:var(--muted);font-size:12px;line-height:1.5}
-    a{color:var(--accent)}
+    .readingBox {
+      background:#fff; border:1px solid #e5e7eb; border-radius:16px; padding:14px; line-height:1.55;
+      direction:ltr; white-space:pre-wrap;
+    }
+
+    /* confetti */
+    .confetti {
+      position: fixed; inset: 0; pointer-events:none; overflow:hidden; z-index: 9999;
+    }
+    .confetti i {
+      position:absolute; top:-20px; width:10px; height:14px; border-radius:3px;
+      opacity:.9; animation: fall 900ms linear forwards;
+    }
+    @keyframes fall {
+      to { transform: translateY(110vh) rotate(360deg); opacity: 0.9; }
+    }
+
+    @media (max-width: 720px) {
+      .row { align-items:stretch; }
+    }
   </style>
 </head>
+
 <body>
 <header>
-  <h1>משחקי אוצר מילים - Unit 2</h1>
-  <div class="sub">
-    4 משחקים: כרטיסיות, התאמות, טריוויה, איות. הכל עובד offline.
-  </div>
+  <h1>Unit 2 - משחק הכנה</h1>
+  <p>לחצו 🔊 כדי לשמוע. אפשר להחליף סט ולהגריל משחק חדש בכל פעם.</p>
 </header>
 
-<div class="wrap">
-  <div class="topbar">
-    <div class="tabs" id="tabs"></div>
-    <div class="stats">
-      <span class="pill">ניקוד: <b id="score">0</b></span>
-      <span class="pill">רצף נכון: <b id="streak">0</b></span>
-      <button class="btn danger" id="resetBtn">איפוס ניקוד</button>
+<main>
+
+  <div class="card">
+    <div class="bigTitle">
+      <h2>שליטה במשחק</h2>
+      <p class="muted">הכל מתעדכן אוטומטית לפי הסט וההגרלה</p>
+    </div>
+
+    <div class="hr"></div>
+
+    <div class="row">
+      <div>
+        <div class="muted">בחר סט (Deck)</div>
+        <select id="deckSelect"></select>
+      </div>
+
+      <div>
+        <div class="muted">כמה משימות במשחק</div>
+        <input id="taskCount" type="number" min="5" max="30" step="1" value="12">
+      </div>
+
+      <div style="min-width: 190px;">
+        <div class="muted">קול (English)</div>
+        <select id="voiceSelect"></select>
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:10px;">
+      <button class="btn warn" id="refreshBtn">רענן משחק (הגרלה חדשה)</button>
+      <button class="btn primary" id="startBtn">התחל משחק</button>
+      <button class="btn" id="resetBtn">איפוס ניקוד</button>
+    </div>
+
+    <div class="hr"></div>
+
+    <div class="row">
+      <span class="pill"><b>ניקוד</b> <span id="score">0</span></span>
+      <span class="pill"><b>רצף נכון</b> <span id="streak">0</span></span>
+      <span class="pill"><b>כוכבים</b> <span id="stars">0</span> ⭐</span>
+      <span class="pill"><b>משימה</b> <span id="progress">0</span></span>
+      <span class="muted">טיפ: באייפון, אם אין קול, לחץ פעם אחת על 🔊</span>
     </div>
   </div>
 
-  <section class="panel" id="flashPanel">
-    <h2>כרטיסיות (Flip)</h2>
-    <p>לוחצים על הכרטיס כדי להפוך. אפשר לבחור האם להתחיל מאנגלית או עברית.</p>
-
-    <div class="flash">
-      <div class="flashbox" id="flashBox" title="לחץ כדי להפוך">
-        <div class="flipper">
-          <div class="side front">
-            <div class="word" id="flashFront">word</div>
-            <div class="hint">לחץ כדי להפוך</div>
-          </div>
-          <div class="side back">
-            <div class="meaning" id="flashBack">meaning</div>
-            <div class="hint">לחץ כדי להפוך</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="flashcontrols">
-        <button class="btn" id="prevFlash">הקודם</button>
-        <button class="btn primary" id="flipFlash">הפוך</button>
-<button class="speaker" id="speakFlash">🔊 השמע</button>
-        <button class="btn" id="nextFlash">הבא</button>
-        <button class="btn" id="shuffleFlash">ערבב</button>
-        <button class="btn" id="toggleLang">התחל מאנגלית</button>
-      </div>
-
-      <div class="footer">
-        טיפ: אפשר לשחק גם "ניחוש": רואים צד אחד ומנסים להגיד את הצד השני לפני שמתהפכים.
-      </div>
+  <div id="gameArea" class="card">
+    <div class="bigTitle">
+      <h2>המשחק</h2>
+      <p class="muted">לחצו "התחל משחק" כדי לקבל משימות</p>
     </div>
-  </section>
+    <div class="hr"></div>
+    <div id="taskHost"></div>
+  </div>
 
-  <section class="panel hidden" id="matchPanel">
-    <h2>התאמות (Match)</h2>
-    <p>לוחצים על מילה באנגלית ואז על הפירוש בעברית. אם זה נכון, זה ננעל בירוק.</p>
-
-    <div class="matchgrid">
-      <div class="card">
-        <div class="row">
-          <b>אנגלית</b>
-          <button class="btn" id="newMatch">סט חדש</button>
-        </div>
-        <div class="list" id="enList"></div>
-      </div>
-
-      <div class="card">
-        <div class="row">
-          <b>עברית</b>
-          <span class="tag" id="matchStatus">0 / 0</span>
-        </div>
-        <div class="list" id="heList"></div>
-      </div>
+  <div id="practiceArea" class="card">
+    <div class="bigTitle">
+      <h2>תרגול חופשי</h2>
+      <p class="muted">מילים עם פירוש ושמיעה, בלי ניקוד</p>
     </div>
+    <div class="hr"></div>
+    <div id="wordList"></div>
+  </div>
 
-    <div class="footer">
-      ניקוד: התאמה נכונה מוסיפה נקודות. התאמה שגויה מורידה רצף.
-    </div>
-  </section>
+</main>
 
-  <section class="panel hidden" id="quizPanel">
-    <h2>טריוויה (Multiple choice)</h2>
-    <p>בוחרים את הפירוש הנכון בעברית. אפשר לעבור לשאלה הבאה.</p>
-
-    <div class="card">
-      <div class="row">
-        <div class="qword" id="quizWord">word</div>
-        <div class="row">
-          <button class="btn" id="newQuiz">שאלה חדשה</button>
-          <span class="tag" id="quizCount">0 / 0</span>
-        </div>
-      </div>
-      <div class="choices" id="quizChoices"></div>
-      <div class="note" id="quizNote"></div>
-    </div>
-  </section>
-
-  <section class="panel hidden" id="spellPanel">
-    <h2>איות (Spelling)</h2>
-    <p>מופיע פירוש בעברית. צריך להקליד את המילה באנגלית.</p>
-
-    <div class="card">
-      <div class="row">
-        <div>
-          <div class="meaning" id="spellMeaning">פירוש</div>
-          <div class="note">רמז: אפשר ללחוץ "רמז אות" לקבל אות ראשונה.</div>
-        </div>
-        <div class="row">
-          <button class="btn" id="newSpell">חדש</button>
-          <button class="btn" id="hintSpell">רמז אות</button>
-        </div>
-      </div>
-
-      <div class="spellbox" style="margin-top:10px">
-        <input id="spellInput" type="text" placeholder="type the English word" autocomplete="off" />
-        <button class="btn primary" id="checkSpell">בדוק</button>
-      </div>
-
-      <div class="result" id="spellResult">
-        <span>עוד לא בדקת.</span>
-        <span class="tag">ניקוד</span>
-      </div>
-    </div>
-  </section>
-</div>
+<div id="confetti" class="confetti" hidden></div>
 
 <script>
-  // Vocabulary list (from the photo)
-  // You can edit translations if you want.
-  const VOCAB = [
-    {en:"a quarter past", he:"רבע אחרי"},
-    {en:"a quarter to", he:"רבע ל"},
-    {en:"adult", he:"מבוגר"},
-    {en:"after", he:"אחרי"},
-    {en:"again", he:"שוב"},
-    {en:"ago", he:"לפני (זמן)"},
-    {en:"always", he:"תמיד"},
-    {en:"artist", he:"אמן"},
-    {en:"aunt", he:"דודה"},
-    {en:"because", he:"בגלל"},
-    {en:"build", he:"לבנות"},
-    {en:"(be) called", he:"להיקרא"},
-    {en:"choose", he:"לבחור"},
-    {en:"clock", he:"שעון"},
-    {en:"club", he:"מועדון"},
-    {en:"country", he:"מדינה"},
+/* =========================
+   DATA: כאן הכי קל לעדכן
+   =========================
+   מוסיפים סט חדש תחת decks.
+   כל סט יכול להכיל:
+   vocab: [{en,he}]
+   complete: [{template, choices, answer}]
+   yesno: [{statement, answer:true/false}]
+   listening: [{title, transcript, questions:[mcq]}]
+   readings: [{title, text, questions:[mcq]}]
+*/
 
-    {en:"cry", he:"לבכות"},
-    {en:"easy", he:"קל"},
-    {en:"excited", he:"נרגש"},
-    {en:"find", he:"למצוא"},
-    {en:"first", he:"ראשון"},
-    {en:"fix", he:"לתקן"},
-    {en:"get", he:"לקבל"},
-    {en:"get up", he:"לקום"},
-    {en:"hard", he:"קשה"},
-    {en:"hour", he:"שעה"},
-    {en:"how", he:"איך"},
-    {en:"hurt", he:"לכאוב"},
-    {en:"ice", he:"קרח"},
-    {en:"important", he:"חשוב"},
-    {en:"interesting", he:"מעניין"},
-    {en:"keep", he:"לשמור"},
+const DATA = {
+  settings: {
+    defaultVoiceLang: "en-US",
+    speechRate: 0.95,
+    speechPitch: 1.0,
+    speechVolume: 1.0,
+  },
 
-    {en:"later", he:"אחר כך"},
-    {en:"lie", he:"לשקר"},
-    {en:"many", he:"הרבה"},
-    {en:"medal", he:"מדליה"},
-    {en:"minute", he:"דקה"},
-    {en:"money", he:"כסף"},
-    {en:"more", he:"יותר"},
-    {en:"move", he:"לזוז"},
-    {en:"need", he:"צריך"},
-    {en:"neighbor", he:"שכן"},
-    {en:"noise", he:"רעש"},
-    {en:"of", he:"של"},
-    {en:"Olympic Games", he:"המשחקים האולימפיים"},
-    {en:"or", he:"או"},
-    {en:"our", he:"שלנו"},
-    {en:"paint", he:"לצייר"},
+  decks: [
+    {
+      id: "unit2_main",
+      name: "Unit 2 - כל החומר",
+      vocab: [
+        { en:"something", he:"משהו" },
+        { en:"sick", he:"חולה" },
+        { en:"plate", he:"צלחת" },
+        { en:"road", he:"כביש / דרך" },
+        { en:"again", he:"שוב" },
+        { en:"think", he:"לחשוב" },
+        { en:"club", he:"מועדון / חוג" },
+        { en:"true", he:"נכון / אמת" },
+        { en:"fix", he:"לתקן" },
+        { en:"way", he:"דרך" },
 
-    {en:"parent", he:"הורה"},
-    {en:"place", he:"מקום"},
-    {en:"plate", he:"צלחת"},
-    {en:"player", he:"שחקן"},
-    {en:"poor", he:"עני"},
-    {en:"practice", he:"להתאמן"},
-    {en:"prepare", he:"להכין"},
-    {en:"prize", he:"פרס"},
-    {en:"problem", he:"בעיה"},
-    {en:"race", he:"מרוץ"},
-    {en:"right", he:"נכון"},
-    {en:"road", he:"כביש"},
-    {en:"safe", he:"בטוח"},
-    {en:"second", he:"שני"},
-    {en:"sick", he:"חולה"},
-    {en:"sign", he:"שלט / סימן"},
+        { en:"later", he:"אחר כך / מאוחר יותר" },
+        { en:"clock", he:"שעון" },
+        { en:"adult", he:"מבוגר" },
+        { en:"winner", he:"מנצח" },
+        { en:"artist", he:"אמן / צייר" },
 
-    {en:"some", he:"כמה"},
-    {en:"something", he:"משהו"},
-    {en:"son", he:"בן"},
-    {en:"table tennis", he:"טניס שולחן"},
-    {en:"them", he:"אותם"},
-    {en:"think", he:"לחשוב"},
-    {en:"time", he:"זמן"},
-    {en:"tomorrow", he:"מחר"},
-    {en:"true", he:"נכון / אמת"},
-    {en:"us", he:"אותנו"},
-    {en:"use", he:"להשתמש"},
-    {en:"was", he:"היה"},
-    {en:"way", he:"דרך"},
-    {en:"winner", he:"מנצח"},
-  ];
+        { en:"hurt", he:"כואב / לפצוע" },
+        { en:"build", he:"לבנות" },
+        { en:"wait", he:"לחכות" },
+        { en:"more", he:"עוד / יותר" },
+        { en:"a quarter to", he:"רבע ל-" },
 
-  // Helpers
-  const $ = (id) => document.getElementById(id);
-  const shuffle = (arr) => {
-    const a = arr.slice();
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
+        { en:"car", he:"מכונית" },
+        { en:"bird", he:"ציפור" },
+        { en:"children", he:"ילדים" },
+        { en:"coffee", he:"קפה" },
+        { en:"coat", he:"מעיל" },
+        { en:"boots", he:"מגפיים" },
+        { en:"ice", he:"קרח" },
+        { en:"penguin", he:"פינגווין" },
+        { en:"sign", he:"שלט" },
+        { en:"cold", he:"קר" },
+        { en:"tired", he:"עייף" },
+        { en:"excited", he:"נרגש" },
+        { en:"old", he:"זקן / ישן" },
+        { en:"snow", he:"שלג" },
+        { en:"black", he:"שחור" },
+        { en:"white", he:"לבן" },
+        { en:"big", he:"גדול" },
+        { en:"happy", he:"שמח" },
+        { en:"hat", he:"כובע" },
+        { en:"snowman", he:"איש שלג" },
+        { en:"weather", he:"מזג אוויר" },
+      ],
+
+      complete: [
+        { template:"Some people like to drink cola with ___.", choices:["ice","boots","plate","club"], answer:"ice" },
+        { template:"He was the first in the ___.", choices:["race","clock","sign","road"], answer:"race" },
+        { template:"We want to go to our neighbors ___.", choices:["later","again","tired","winner"], answer:"later" },
+        { template:"I always ___ at a quarter to seven.", choices:["get up","build","paint","wait"], answer:"get up" },
+        { template:"I was in Canada two years ___.", choices:["ago","more","cold","true"], answer:"ago" },
+        { template:"The ___ painted pictures on the walls.", choices:["artist","adult","penguin","winner"], answer:"artist" },
+        { template:"There ___ five clocks in my house.", choices:["is","are"], answer:"are" },
+        { template:"Rami ___ a green bag.", choices:["have","has"], answer:"has" },
+      ],
+
+      yesno: [
+        { statement:"The girls learn about the new clubs from a sign.", answer:true },
+        { statement:"The LEGO robotics club meets on Thursdays.", answer:false },
+        { statement:"The judo club meets at a quarter to five.", answer:true },
+        { statement:"Pam wants to do more sports.", answer:false },
+        { statement:"The Blue Birds are a basketball team.", answer:true },
+        { statement:"The Blue Birds play basketball for one hour every day.", answer:false },
+        { statement:"The doctor says Zack can’t play basketball for a month.", answer:true },
+        { statement:"Zack helped the Blue Birds win many games.", answer:true },
+      ],
+
+      listening: [
+        {
+          title: "Listening: Clubs",
+          transcript:
+            "Robin and Pam see a sign about new clubs. The art club is on Tuesdays. The judo club is at a quarter to five. Pam is scared of dogs, so she doesn’t want the Little Vets club. In the end, the girls choose the judo club.",
+          questions: [
+            {
+              prompt: "On Tuesdays, Robin …",
+              choices: [
+                "has dance lessons",
+                "paints pictures at the art club",
+                "plays with a little boy",
+                "goes to a club with her neighbor"
+              ],
+              answerIndex: 1
+            },
+            {
+              prompt: "Pam doesn’t want to go to the Little Vets club because …",
+              choices: [
+                "she swims on the day the Little Vets meet",
+                "the animals are dirty",
+                "the art club meets at the same time",
+                "she’s scared of dogs"
+              ],
+              answerIndex: 3
+            },
+            {
+              prompt: "In the end, the girls …",
+              choices: [
+                "choose the judo club",
+                "don’t go to a new club",
+                "go to the art club",
+                "want to swim together"
+              ],
+              answerIndex: 0
+            }
+          ]
+        }
+      ],
+
+      readings: [
+        {
+          title: "Reading: Zack and the Blue Birds",
+          text:
+`Zack is a basketball player. He plays with a team called the Blue Birds. They practice for two hours every day at the park.
+
+Zack’s team is very good. They win lots of games.
+
+Zack’s team has an important game today. The players are excited. But Zack isn’t excited. He can’t play in the game. He has a problem with his arm. It hurts when he moves it. The doctor says he can’t play basketball for a month.
+
+Zack goes to the game, but he doesn’t play. He has a big sign with his team’s name. He watches his friends in the game. They run and throw the ball. Zack is sad. It’s hard to watch the game. Zack wants to play too.
+
+After two hours, the Blue Birds win the game. The players get medals. Zack gets a medal too because he helped them win lots of games. Now he’s happy. He can’t wait to play basketball again in a month.`,
+          questions: [
+            { prompt:"Zack isn’t playing in the game because …", choices:["he doesn’t practice","he is in a race","his arm hurts","he isn’t a good player"], answerIndex:2 },
+            { prompt:"At the game, Zack …", choices:["throws the ball","feels excited","makes a sign","watches the players"], answerIndex:3 },
+            { prompt:"Zack is happy after the game because …", choices:["he gets a medal","he can play basketball again","his arm doesn’t hurt","everyone likes his sign"], answerIndex:0 },
+            { prompt:"A good name for this story is …", choices:["Zack Wins a Basketball Game","Zack’s Problem","A Sign for Zack","Zack’s Friends"], answerIndex:1 },
+          ]
+        }
+      ]
+    },
+
+    // דוגמה לסט נוסף (רענון לפי נושא)
+    {
+      id: "unit2_quick",
+      name: "Unit 2 - חזרה קצרה",
+      vocab: [
+        { en:"club", he:"מועדון / חוג" },
+        { en:"sign", he:"שלט" },
+        { en:"artist", he:"אמן / צייר" },
+        { en:"winner", he:"מנצח" },
+        { en:"a quarter to", he:"רבע ל-" },
+        { en:"hurt", he:"כואב" },
+        { en:"ice", he:"קרח" },
+        { en:"boots", he:"מגפיים" },
+        { en:"snowman", he:"איש שלג" },
+        { en:"weather", he:"מזג אוויר" },
+      ],
+      complete: [
+        { template:"The ___ painted pictures.", choices:["artist","penguin","plate"], answer:"artist" },
+        { template:"Be careful on the ___.", choices:["ice","coffee","road"], answer:"ice" },
+        { template:"It is a quarter to ___.", choices:["five","plate","club"], answer:"five" }, // אפשר להחליף למה שמתאים לכם
+      ],
+      yesno: [
+        { statement:"A penguin can fly.", answer:false },
+        { statement:"A snowman is made of snow.", answer:true },
+      ],
+      listening: [],
+      readings: []
     }
-    return a;
-  };
-  const sample = (arr, n) => shuffle(arr).slice(0, n);
-  const normalize = (s) => (s || "").trim().toLowerCase();
+  ]
+};
 
-function speak(text, lang="en-US"){
-  try{
-    if (!("speechSynthesis" in window)) return;
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = lang;
-    u.rate = 0.95;
-    window.speechSynthesis.speak(u);
-  } catch(e){}
+/* =========================
+   Audio (Speech)
+   ========================= */
+let voicesReady = false;
+let chosenVoiceURI = "";
+
+function getVoices() {
+  return window.speechSynthesis?.getVoices?.() || [];
 }
 
+function populateVoices() {
+  const sel = document.getElementById("voiceSelect");
+  sel.innerHTML = "";
+  const voices = getVoices();
 
-  // Score persistence
-  const STORE_KEY = "vocab_score_v1";
-  const STORE_STREAK = "vocab_streak_v1";
-  let score = Number(localStorage.getItem(STORE_KEY) || 0);
-  let streak = Number(localStorage.getItem(STORE_STREAK) || 0);
-  const setScore = (delta) => {
-    score += delta;
-    if (score < 0) score = 0;
-    $("score").textContent = score;
-    localStorage.setItem(STORE_KEY, String(score));
-  };
-  const setStreak = (val) => {
-    streak = val;
-    if (streak < 0) streak = 0;
-    $("streak").textContent = streak;
-    localStorage.setItem(STORE_STREAK, String(streak));
-  };
-  $("score").textContent = score;
-  $("streak").textContent = streak;
+  const english = voices.filter(v => (v.lang || "").toLowerCase().startsWith("en"));
+  const list = english.length ? english : voices;
 
-  $("resetBtn").addEventListener("click", () => {
-    score = 0; streak = 0;
-    localStorage.setItem(STORE_KEY, "0");
-    localStorage.setItem(STORE_STREAK, "0");
-    $("score").textContent = "0";
-    $("streak").textContent = "0";
+  list.forEach(v => {
+    const opt = document.createElement("option");
+    opt.value = v.voiceURI;
+    opt.textContent = `${v.name} (${v.lang})`;
+    sel.appendChild(opt);
   });
 
-  // Tabs
-  const TABS = [
-    {id:"flashPanel", name:"כרטיסיות"},
-    {id:"matchPanel", name:"התאמות"},
-    {id:"quizPanel", name:"טריוויה"},
-    {id:"spellPanel", name:"איות"},
-  ];
-  const tabsEl = $("tabs");
-  let active = "flashPanel";
+  const preferred = list.find(v => (v.lang || "").toLowerCase() === DATA.settings.defaultVoiceLang.toLowerCase());
+  const fallback = preferred || list[0];
+  if (fallback) {
+    sel.value = fallback.voiceURI;
+    chosenVoiceURI = fallback.voiceURI;
+  }
 
-  function show(panelId){
-    active = panelId;
-    for (const t of TABS){
-      $(t.id).classList.toggle("hidden", t.id !== panelId);
-    }
-    document.querySelectorAll(".tab").forEach(btn => {
-      btn.classList.toggle("active", btn.dataset.panel === panelId);
+  sel.addEventListener("change", () => {
+    chosenVoiceURI = sel.value;
+  });
+}
+
+function pickVoice() {
+  const voices = getVoices();
+  if (!voices.length) return null;
+  if (chosenVoiceURI) return voices.find(v => v.voiceURI === chosenVoiceURI) || null;
+  return voices[0] || null;
+}
+
+function speak(text) {
+  if (!("speechSynthesis" in window)) {
+    alert("אין תמיכה בהשמעה בדפדפן הזה.");
+    return;
+  }
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.rate = DATA.settings.speechRate;
+  u.pitch = DATA.settings.speechPitch;
+  u.volume = DATA.settings.speechVolume;
+
+  const v = pickVoice();
+  if (v) {
+    u.voice = v;
+    u.lang = v.lang;
+  }
+  window.speechSynthesis.speak(u);
+}
+
+if ("speechSynthesis" in window) {
+  window.speechSynthesis.onvoiceschanged = () => { voicesReady = true; populateVoices(); };
+  setTimeout(() => { voicesReady = true; populateVoices(); }, 300);
+}
+
+/* =========================
+   State
+   ========================= */
+const KEY = "unit2_fun_game_v1";
+let state = {
+  deckId: DATA.decks[0].id,
+  seed: Date.now(),
+  score: 0,
+  streak: 0,
+  stars: 0,
+  currentTasks: [],
+  taskIndex: 0,
+};
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (raw) state = Object.assign(state, JSON.parse(raw));
+  } catch {}
+}
+function saveState() {
+  localStorage.setItem(KEY, JSON.stringify(state));
+  renderTop();
+}
+function resetScore() {
+  state.score = 0;
+  state.streak = 0;
+  state.stars = 0;
+  saveState();
+  renderGame();
+}
+function getDeck() {
+  return DATA.decks.find(d => d.id === state.deckId) || DATA.decks[0];
+}
+
+/* =========================
+   Utils
+   ========================= */
+function el(tag, attrs={}, children=[]) {
+  const node = document.createElement(tag);
+  for (const [k,v] of Object.entries(attrs)) {
+    if (k === "class") node.className = v;
+    else if (k.startsWith("on") && typeof v === "function") node.addEventListener(k.slice(2), v);
+    else if (k === "html") node.innerHTML = v;
+    else node.setAttribute(k, v);
+  }
+  for (const c of children) node.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
+  return node;
+}
+function shuffle(arr, seed) {
+  const a = arr.slice();
+  let s = seed || Date.now();
+  function rnd() { s = (s * 1664525 + 1013904223) % 4294967296; return s / 4294967296; }
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rnd() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function listenBtn(text, label="🔊") {
+  return el("button", { class:"listenBtn", type:"button", onclick: () => speak(text) }, [label]);
+}
+function feedback(msg, ok) {
+  return el("div", { class: "feedback " + (ok ? "good":"bad") }, [msg]);
+}
+
+/* =========================
+   Confetti
+   ========================= */
+function popConfetti() {
+  const box = document.getElementById("confetti");
+  box.innerHTML = "";
+  box.hidden = false;
+
+  const colors = ["#2563eb","#16a34a","#f59e0b","#ef4444","#8b5cf6"];
+  for (let i = 0; i < 26; i++) {
+    const piece = document.createElement("i");
+    piece.style.left = Math.floor(Math.random()*100) + "vw";
+    piece.style.background = colors[Math.floor(Math.random()*colors.length)];
+    piece.style.transform = `translateY(0) rotate(${Math.random()*180}deg)`;
+    piece.style.animationDuration = (650 + Math.random()*500) + "ms";
+    box.appendChild(piece);
+  }
+  setTimeout(() => { box.hidden = true; box.innerHTML = ""; }, 950);
+}
+
+/* =========================
+   Build tasks (ריענון)
+   ========================= */
+function buildTasks(taskCount) {
+  const deck = getDeck();
+
+  const tasks = [];
+
+  // 1) Vocab meaning MCQ
+  const vocab = deck.vocab || [];
+  const vocabShuffled = shuffle(vocab, state.seed + 1);
+  vocabShuffled.forEach((w) => {
+    const wrongPool = shuffle(vocab.filter(x => x.en !== w.en), state.seed + w.en.length).slice(0, 3);
+    const choices = shuffle([w.he, ...wrongPool.map(x => x.he)], state.seed + 7);
+    tasks.push({
+      type: "vocab_mcq",
+      speakText: w.en,
+      prompt: `מה הפירוש של "${w.en}"?`,
+      sub: "בחר/י תשובה ואז בדיקה",
+      choices,
+      answer: w.he
     });
-  }
-
-  for (const t of TABS){
-    const b = document.createElement("button");
-    b.className = "tab" + (t.id === active ? " active" : "");
-    b.textContent = t.name;
-    b.dataset.panel = t.id;
-    b.addEventListener("click", () => show(t.id));
-    tabsEl.appendChild(b);
-  }
-
-  // Flashcards
-  let flashList = shuffle(VOCAB);
-  let flashIndex = 0;
-  let startWithEnglish = true;
-
-  function renderFlash(){
-    const item = flashList[flashIndex];
-    const front = startWithEnglish ? item.en : item.he;
-    const back  = startWithEnglish ? item.he : item.en;
-    $("flashFront").textContent = front;
-    $("flashBack").textContent = back;
-    $("flashBox").classList.remove("flipped");
-  }
-
-  $("flashBox").addEventListener("click", () => $("flashBox").classList.toggle("flipped"));
-  $("flipFlash").addEventListener("click", () => $("flashBox").classList.toggle("flipped"));
-  $("nextFlash").addEventListener("click", () => { flashIndex = (flashIndex+1) % flashList.length; renderFlash(); });
-  $("prevFlash").addEventListener("click", () => { flashIndex = (flashIndex-1+flashList.length) % flashList.length; renderFlash(); });
-  $("shuffleFlash").addEventListener("click", () => { flashList = shuffle(flashList); flashIndex = 0; renderFlash(); });
-  $("toggleLang").addEventListener("click", () => {
-    startWithEnglish = !startWithEnglish;
-    $("toggleLang").textContent = startWithEnglish ? "התחל מאנגלית" : "התחל מעברית";
-
-
-    renderFlash();
   });
 
-$("speakFlash").addEventListener("click", () => {
-  const item = flashList[flashIndex];
-  speak(item.en, "en-US");
-});
+  // 2) Complete sentences
+  const comp = deck.complete || [];
+  shuffle(comp, state.seed + 2).forEach((c) => {
+    tasks.push({
+      type: "complete",
+      speakText: c.template.replace("___", c.answer),
+      prompt: c.template.replace("___", "______"),
+      sub: "בחר/י את המילה הנכונה",
+      choices: c.choices,
+      answer: c.answer
+    });
+  });
 
-  renderFlash();
+  // 3) Yes/No
+  const yn = deck.yesno || [];
+  shuffle(yn, state.seed + 3).forEach((q) => {
+    tasks.push({
+      type: "yesno",
+      speakText: q.statement,
+      prompt: q.statement,
+      sub: "Yes או No",
+      choices: ["Yes", "No"],
+      answer: q.answer ? "Yes" : "No"
+    });
+  });
 
-  // Matching game
-  let matchPairs = [];
-  let selectedEn = null;
-  let selectedHe = null;
-  let matchDone = 0;
-
-  function newMatchSet(){
-    matchPairs = sample(VOCAB, 10);
-    matchDone = 0;
-    $("matchStatus").textContent = `${matchDone} / ${matchPairs.length}`;
-    selectedEn = null;
-    selectedHe = null;
-
-    const enTiles = shuffle(matchPairs.map(p => ({key:p.en, text:p.en, match:p.en})));
-    const heTiles = shuffle(matchPairs.map(p => ({key:p.en, text:p.he, match:p.en})));
-
-    const enList = $("enList");
-    const heList = $("heList");
-    enList.innerHTML = "";
-    heList.innerHTML = "";
-
-    for (const t of enTiles){
-      const div = document.createElement("div");
-      div.className = "tile ltr";
-      div.dataset.match = t.match;
-      div.dataset.type = "en";
-      div.innerHTML = `<span>${t.text}</span><small>EN</small>`;
-      div.addEventListener("click", () => onPick(div));
-      enList.appendChild(div);
-    }
-    for (const t of heTiles){
-      const div = document.createElement("div");
-      div.className = "tile";
-      div.dataset.match = t.match;
-      div.dataset.type = "he";
-      div.innerHTML = `<span>${t.text}</span><small>HE</small>`;
-      div.addEventListener("click", () => onPick(div));
-      heList.appendChild(div);
-    }
-  }
-
-  function clearWrong(){
-    document.querySelectorAll(".tile.wrong").forEach(x => x.classList.remove("wrong"));
-  }
-
-  function onPick(tile){
-    if (tile.classList.contains("matched")) return;
-
-    clearWrong();
-    const type = tile.dataset.type;
-
-    if (type === "en"){
-      document.querySelectorAll('#enList .tile').forEach(x => x.classList.remove("selected"));
-      tile.classList.add("selected");
-      selectedEn = tile;
-    } else {
-      document.querySelectorAll('#heList .tile').forEach(x => x.classList.remove("selected"));
-      tile.classList.add("selected");
-      selectedHe = tile;
-    }
-
-    if (selectedEn && selectedHe){
-      const ok = selectedEn.dataset.match === selectedHe.dataset.match;
-      if (ok){
-        selectedEn.classList.remove("selected");
-        selectedHe.classList.remove("selected");
-        selectedEn.classList.add("matched");
-        selectedHe.classList.add("matched");
-
-        matchDone += 1;
-        $("matchStatus").textContent = `${matchDone} / ${matchPairs.length}`;
-
-        setScore(10);
-        setStreak(streak + 1);
-
-        selectedEn = null;
-        selectedHe = null;
-
-        if (matchDone === matchPairs.length){
-          setScore(30); // bonus
-          $("matchStatus").textContent = `כל הכבוד! ${matchDone} / ${matchPairs.length}`;
-        }
-      } else {
-        selectedEn.classList.add("wrong");
-        selectedHe.classList.add("wrong");
-        setStreak(0);
-        // keep selection for a moment then clear
-        setTimeout(() => {
-          selectedEn && selectedEn.classList.remove("selected","wrong");
-          selectedHe && selectedHe.classList.remove("selected","wrong");
-          selectedEn = null;
-          selectedHe = null;
-        }, 550);
-      }
-    }
-  }
-
-  $("newMatch").addEventListener("click", newMatchSet);
-  newMatchSet();
-
-  // Quiz game
-  let quizAsked = 0;
-  let quizRight = 0;
-  let currentQuiz = null;
-  let quizLocked = false;
-
-  function newQuizQ(){
-    quizLocked = false;
-    $("quizNote").textContent = "";
-    currentQuiz = sample(VOCAB, 1)[0];
-    quizAsked += 1;
-    $("quizCount").textContent = `${quizRight} / ${quizAsked - 1}`;
-
-    $("quizWord").textContent = currentQuiz.en;
-$("quizWord").style.cursor = "pointer";
-$("quizWord").title = "לחץ להשמעה";
-$("quizWord").onclick = () => speak(currentQuiz.en, "en-US");
-    const wrong = sample(VOCAB.filter(v => v.en !== currentQuiz.en), 3).map(v => v.he);
-    const options = shuffle([currentQuiz.he, ...wrong]);
-
-    const box = $("quizChoices");
-    box.innerHTML = "";
-
-    for (const opt of options){
-      const div = document.createElement("div");
-      div.className = "choice";
-      div.textContent = opt;
-      div.addEventListener("click", () => {
-        if (quizLocked) return;
-        quizLocked = true;
-
-        const ok = opt === currentQuiz.he;
-        if (ok){
-          div.classList.add("good");
-          quizRight += 1;
-          setScore(8);
-          setStreak(streak + 1);
-          $("quizNote").textContent = "נכון!";
-        } else {
-          div.classList.add("bad");
-          setStreak(0);
-          $("quizNote").textContent = `לא בדיוק. התשובה: ${currentQuiz.he}`;
-          // mark correct
-          [...box.children].forEach(c => {
-            if (c.textContent === currentQuiz.he) c.classList.add("good");
-          });
-        }
-        $("quizCount").textContent = `${quizRight} / ${quizAsked}`;
+  // 4) Listening MCQ (use transcript + questions)
+  const listening = deck.listening || [];
+  shuffle(listening, state.seed + 4).forEach((set) => {
+    if (!set.questions || !set.questions.length) return;
+    const qs = shuffle(set.questions, state.seed + 40).slice(0, Math.min(2, set.questions.length));
+    qs.forEach((q) => {
+      tasks.push({
+        type: "listening_mcq",
+        speakText: set.transcript,
+        prompt: `Listening: ${q.prompt}`,
+        sub: "לחץ/י 🔊 כדי לשמוע את כל ההאזנה, ואז ענה/י",
+        choices: q.choices,
+        answer: q.choices[q.answerIndex]
       });
-      box.appendChild(div);
-    }
-  }
-
-  $("newQuiz").addEventListener("click", newQuizQ);
-  newQuizQ();
-
-  // Spelling game
-  let currentSpell = null;
-  let hintUsed = false;
-
-  function newSpellQ(){
-    hintUsed = false;
-    $("spellInput").value = "";
-    $("spellInput").focus();
-    currentSpell = sample(VOCAB, 1)[0];
-    $("spellMeaning").textContent = currentSpell.he;
-    $("spellResult").innerHTML = `<span>הקלד את המילה באנגלית ואז לחץ בדוק.</span><span class="tag">Spelling</span>`;
-  }
-
-  $("newSpell").addEventListener("click", newSpellQ);
-
-  $("hintSpell").addEventListener("click", () => {
-    if (!currentSpell) return;
-    const first = currentSpell.en[0];
-    const input = $("spellInput");
-    if (input.value.trim().length === 0){
-      input.value = first;
-      input.focus();
-    }
-    hintUsed = true;
+    });
   });
 
-  function checkSpell(){
-    if (!currentSpell) return;
-    const ans = normalize($("spellInput").value);
-    const correct = normalize(currentSpell.en);
+  // 5) Reading MCQ
+  const readings = deck.readings || [];
+  shuffle(readings, state.seed + 5).forEach((r) => {
+    if (!r.questions || !r.questions.length) return;
+    const q = shuffle(r.questions, state.seed + 50)[0];
+    tasks.push({
+      type: "reading_mcq",
+      speakText: r.text,
+      prompt: `Reading: ${q.prompt}`,
+      sub: "לחץ/י 🔊 כדי לשמוע את הטקסט",
+      choices: q.choices,
+      answer: q.choices[q.answerIndex],
+      extraText: r.text
+    });
+  });
 
-    if (ans === correct){
-      const add = hintUsed ? 6 : 10;
-      setScore(add);
-      setStreak(streak + 1);
-      $("spellResult").innerHTML = `<span>נכון! המילה היא <b class="ltr">${currentSpell.en}</b></span><span class="tag good">+${add}</span>`;
-      setTimeout(newSpellQ, 650);
+  const final = shuffle(tasks, state.seed + 99).slice(0, taskCount);
+  return final;
+}
+
+/* =========================
+   Rendering
+   ========================= */
+function renderTop() {
+  document.getElementById("score").textContent = String(state.score);
+  document.getElementById("streak").textContent = String(state.streak);
+  document.getElementById("stars").textContent = String(state.stars);
+  document.getElementById("progress").textContent = state.currentTasks.length
+    ? `${state.taskIndex + 1}/${state.currentTasks.length}`
+    : "0";
+}
+
+function renderDeckSelect() {
+  const sel = document.getElementById("deckSelect");
+  sel.innerHTML = "";
+  DATA.decks.forEach(d => {
+    const opt = document.createElement("option");
+    opt.value = d.id;
+    opt.textContent = d.name;
+    sel.appendChild(opt);
+  });
+  sel.value = state.deckId;
+  sel.addEventListener("change", () => {
+    state.deckId = sel.value;
+    state.seed = Date.now();
+    state.currentTasks = [];
+    state.taskIndex = 0;
+    saveState();
+    renderPractice();
+    renderGame();
+  });
+}
+
+function renderPractice() {
+  const deck = getDeck();
+  const host = document.getElementById("wordList");
+  host.innerHTML = "";
+
+  const items = deck.vocab || [];
+  const chunk = shuffle(items, state.seed + 123).slice(0, Math.min(24, items.length));
+
+  chunk.forEach(w => {
+    host.appendChild(
+      el("div", { class:"row", style:"border:1px solid #e5e7eb; border-radius:14px; padding:10px 12px; margin-bottom:8px; background:#fff;" }, [
+        el("div", {}, [ el("b", {}, [w.en]), el("div", { class:"muted" }, [w.he]) ]),
+        el("div", { style:"display:flex; gap:10px; justify-content:flex-start;" }, [
+          listenBtn(w.en),
+          el("button", { class:"btn", type:"button", onclick: () => speak(w.en + ". " + w.he) }, ["🔊 מילה + פירוש"])
+        ])
+      ])
+    );
+  });
+
+  host.appendChild(el("div", { class:"muted" }, ["רוצה עוד מילים אחרות? לחץ/י למעלה על רענן משחק."]));
+}
+
+function renderGame() {
+  const host = document.getElementById("taskHost");
+  host.innerHTML = "";
+
+  if (!state.currentTasks.length) {
+    host.appendChild(el("div", { class:"muted" }, ["עדיין לא התחלת משחק. לחץ/י על 'התחל משחק'."]));
+    renderTop();
+    return;
+  }
+
+  const task = state.currentTasks[state.taskIndex];
+  const taskBox = el("div", { class:"task" });
+
+  const header = el("div", { class:"row" }, [
+    el("div", {}, [
+      el("div", { class:"prompt" }, [task.prompt]),
+      el("div", { class:"sub" }, [task.sub || ""])
+    ]),
+    el("div", { style:"display:flex; gap:10px; justify-content:flex-start; flex-wrap:wrap;" }, [
+      listenBtn(task.speakText || task.prompt, "🔊"),
+      el("button", { class:"btn", type:"button", onclick: () => speak(task.prompt) }, ["🔊 שאלה"]),
+    ])
+  ]);
+
+  taskBox.appendChild(header);
+
+  if (task.extraText) {
+    taskBox.appendChild(el("div", { class:"readingBox" }, [task.extraText]));
+  }
+
+  const answers = el("div", { class:"answers" });
+  const name = "q_" + state.taskIndex;
+
+  task.choices.forEach(ch => {
+    answers.appendChild(
+      el("label", {}, [
+        el("input", { type:"radio", name, value:ch }),
+        ch
+      ])
+    );
+  });
+
+  taskBox.appendChild(answers);
+
+  const btnRow = el("div", { class:"row" }, [
+    el("button", { class:"btn primary", id:"checkBtn", type:"button" }, ["בדיקה"]),
+    el("button", { class:"btn", id:"skipBtn", type:"button" }, ["דלג/י"])
+  ]);
+
+  taskBox.appendChild(btnRow);
+
+  const checkBtn = btnRow.querySelector("#checkBtn");
+  const skipBtn = btnRow.querySelector("#skipBtn");
+
+  checkBtn.addEventListener("click", () => {
+    const chosen = taskBox.querySelector(`input[name="${name}"]:checked`);
+    const oldFb = taskBox.querySelector(".feedback");
+    if (oldFb) oldFb.remove();
+
+    if (!chosen) {
+      taskBox.appendChild(feedback("בחר/י תשובה קודם.", false));
+      return;
+    }
+
+    const ok = chosen.value === task.answer;
+
+    if (ok) {
+      state.score += 1;
+      state.streak += 1;
+
+      if (state.streak % 3 === 0) {
+        state.stars += 1;
+        popConfetti();
+        taskBox.appendChild(feedback("רצף 3 נכון! קיבלת כוכב ⭐", true));
+      } else {
+        taskBox.appendChild(feedback("נכון! ✅", true));
+      }
     } else {
-      setStreak(0);
-      $("spellResult").innerHTML = `<span>לא נכון. התשובה: <b class="ltr">${currentSpell.en}</b></span><span class="tag bad">Try again</span>`;
+      state.streak = 0;
+      taskBox.appendChild(feedback(`לא בדיוק. התשובה: ${task.answer}`, false));
     }
-  }
 
-  $("checkSpell").addEventListener("click", checkSpell);
-  $("spellInput").addEventListener("keydown", (e) => {
-    if (e.key === "Enter") checkSpell();
+    saveState();
+    goNextAfter(650);
   });
 
-  newSpellQ();
+  skipBtn.addEventListener("click", () => {
+    const oldFb = taskBox.querySelector(".feedback");
+    if (oldFb) oldFb.remove();
+    state.streak = 0;
+    saveState();
+    goNextAfter(150);
+  });
+
+  host.appendChild(taskBox);
+  renderTop();
+}
+
+function goNextAfter(ms) {
+  setTimeout(() => {
+    if (state.taskIndex < state.currentTasks.length - 1) {
+      state.taskIndex += 1;
+      saveState();
+      renderGame();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      endGame();
+    }
+  }, ms);
+}
+
+function endGame() {
+  const host = document.getElementById("taskHost");
+  host.innerHTML = "";
+
+  const msg = el("div", { class:"card", style:"background:#111827; color:#fff; border-color:#111827;" }, [
+    el("div", { class:"bigTitle" }, [
+      el("h2", {}, ["סיימת משחק!"]),
+      el("div", { class:"muted", style:"color:#cbd5e1;" }, ["בוא נרענן ונעשה עוד סיבוב"])
+    ]),
+    el("div", { class:"hr", style:"background:#334155;" }),
+    el("div", { class:"row" }, [
+      el("span", { class:"pill" }, [el("b", {}, ["ניקוד"]), " " + state.score]),
+      el("span", { class:"pill" }, [el("b", {}, ["כוכבים"]), " " + state.stars + " ⭐"]),
+      el("span", { class:"pill" }, [el("b", {}, ["רצף מקס"]), " " + state.streak]),
+    ]),
+    el("div", { style:"margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;" }, [
+      el("button", { class:"btn warn", type:"button", onclick: () => { state.seed = Date.now(); startGame(); } }, ["עוד משחק חדש"]),
+      el("button", { class:"btn", type:"button", onclick: () => { renderPractice(); } }, ["תרגול מילים"]),
+    ])
+  ]);
+
+  host.appendChild(msg);
+  popConfetti();
+  state.currentTasks = [];
+  state.taskIndex = 0;
+  saveState();
+  renderTop();
+}
+
+/* =========================
+   Controls
+   ========================= */
+function startGame() {
+  const count = Math.max(5, Math.min(30, Number(document.getElementById("taskCount").value || 12)));
+  state.currentTasks = buildTasks(count);
+  state.taskIndex = 0;
+  saveState();
+  renderGame();
+}
+
+function refreshGame() {
+  state.seed = Date.now();
+  state.currentTasks = [];
+  state.taskIndex = 0;
+  saveState();
+  renderPractice();
+  renderGame();
+}
+
+/* =========================
+   Init
+   ========================= */
+loadState();
+renderDeckSelect();
+renderPractice();
+renderGame();
+renderTop();
+
+document.getElementById("startBtn").addEventListener("click", startGame);
+document.getElementById("refreshBtn").addEventListener("click", refreshGame);
+document.getElementById("resetBtn").addEventListener("click", () => {
+  if (confirm("לאפס ניקוד, רצף וכוכבים?")) resetScore();
+});
 </script>
+
 </body>
 </html>
