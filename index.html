@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Unit 2 - משחק הכנה</title>
+  <title>English Practice Game</title>
   <style>
     :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; }
     body { margin:0; background:#f6f7fb; color:#111; }
@@ -19,10 +19,11 @@
     }
     .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
     .row > * { flex: 1 1 auto; }
+
     .muted { color:#6b7280; font-size:13px; }
     .btn {
       border:1px solid #d1d5db; background:#fff; padding:10px 12px; border-radius:12px;
-      cursor:pointer; font-weight:800;
+      cursor:pointer; font-weight:900;
     }
     .btn.primary { background:#2563eb; border-color:#2563eb; color:#fff; }
     .btn.good { background:#16a34a; border-color:#16a34a; color:#fff; }
@@ -48,13 +49,12 @@
     }
     .task .prompt { font-weight:900; font-size:16px; }
     .task .sub { color:#6b7280; font-size:13px; }
-    .task .answers { display:flex; gap:10px; flex-wrap:wrap; }
-    .task label {
+    .answers { display:flex; gap:10px; flex-wrap:wrap; }
+    .answers label {
       border:1px solid #e5e7eb; background:#fff; padding:10px 12px; border-radius:12px; cursor:pointer;
       display:flex; gap:8px; align-items:center;
     }
-    .task input[type="radio"] { transform: scale(1.1); }
-
+    .answers input[type="radio"] { transform: scale(1.1); }
     .feedback { padding:10px 12px; border-radius:12px; border:1px solid #e5e7eb; background:#f9fafb; }
     .feedback.good { border-color:#16a34a55; background:#16a34a10; }
     .feedback.bad  { border-color:#ef444455; background:#ef444410; }
@@ -64,17 +64,33 @@
       direction:ltr; white-space:pre-wrap;
     }
 
+    .grid {
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap:12px;
+    }
+    .flashcard {
+      border:1px solid #e5e7eb; border-radius:16px; padding:14px; background:#fff;
+      text-align:center; cursor:pointer;
+      min-height: 105px;
+      display:flex; flex-direction:column; justify-content:center; gap:10px;
+      font-weight:900;
+    }
+    .flashcard .back { color:#111; font-weight:800; }
+    .tag {
+      display:inline-block;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid #e5e7eb;
+      background:#f3f4f6;
+      font-size:12px;
+      color:#374151;
+    }
+
     /* confetti */
-    .confetti {
-      position: fixed; inset: 0; pointer-events:none; overflow:hidden; z-index: 9999;
-    }
-    .confetti i {
-      position:absolute; top:-20px; width:10px; height:14px; border-radius:3px;
-      opacity:.9; animation: fall 900ms linear forwards;
-    }
-    @keyframes fall {
-      to { transform: translateY(110vh) rotate(360deg); opacity: 0.9; }
-    }
+    .confetti { position: fixed; inset: 0; pointer-events:none; overflow:hidden; z-index: 9999; }
+    .confetti i { position:absolute; top:-20px; width:10px; height:14px; border-radius:3px; opacity:.9; animation: fall 900ms linear forwards; }
+    @keyframes fall { to { transform: translateY(110vh) rotate(360deg); opacity: 0.9; } }
 
     @media (max-width: 720px) {
       .row { align-items:stretch; }
@@ -84,16 +100,15 @@
 
 <body>
 <header>
-  <h1>Unit 2 - משחק הכנה</h1>
-  <p>לחצו 🔊 כדי לשמוע. אפשר להחליף סט ולהגריל משחק חדש בכל פעם.</p>
+  <h1>משחק אנגלית - הכנה למבחן</h1>
+  <p>לחצו 🔊 כדי לשמוע. באייפון חייבים ללחוץ פעם אחת על 🔊 כדי שהקול יתחיל.</p>
 </header>
 
 <main>
-
   <div class="card">
     <div class="bigTitle">
-      <h2>שליטה במשחק</h2>
-      <p class="muted">הכל מתעדכן אוטומטית לפי הסט וההגרלה</p>
+      <h2>הגדרות</h2>
+      <p class="muted">רענון יגריל משימות חדשות</p>
     </div>
 
     <div class="hr"></div>
@@ -105,18 +120,18 @@
       </div>
 
       <div>
-        <div class="muted">כמה משימות במשחק</div>
-        <input id="taskCount" type="number" min="5" max="30" step="1" value="12">
+        <div class="muted">כמות משימות במשחק</div>
+        <input id="taskCount" type="number" min="6" max="30" value="14" />
       </div>
 
-      <div style="min-width: 190px;">
-        <div class="muted">קול (English)</div>
+      <div style="min-width: 210px;">
+        <div class="muted">Voice (English)</div>
         <select id="voiceSelect"></select>
       </div>
     </div>
 
     <div class="row" style="margin-top:10px;">
-      <button class="btn warn" id="refreshBtn">רענן משחק (הגרלה חדשה)</button>
+      <button class="btn warn" id="refreshBtn">רענן (הגרלה חדשה)</button>
       <button class="btn primary" id="startBtn">התחל משחק</button>
       <button class="btn" id="resetBtn">איפוס ניקוד</button>
     </div>
@@ -128,58 +143,56 @@
       <span class="pill"><b>רצף נכון</b> <span id="streak">0</span></span>
       <span class="pill"><b>כוכבים</b> <span id="stars">0</span> ⭐</span>
       <span class="pill"><b>משימה</b> <span id="progress">0</span></span>
-      <span class="muted">טיפ: באייפון, אם אין קול, לחץ פעם אחת על 🔊</span>
+      <span class="pill"><b>מצב</b> <span id="modeLabel">—</span></span>
     </div>
+  </div>
+
+  <div class="card">
+    <div class="bigTitle">
+      <h2>כרטיסיות מילים (תרגול חופשי)</h2>
+      <p class="muted">לחצו על כרטיס כדי לראות פירוש</p>
+    </div>
+    <div class="hr"></div>
+    <div class="row" style="margin-bottom:10px;">
+      <button class="btn" id="newCardsBtn">הגרל כרטיסיות חדשות</button>
+      <span class="muted">מומלץ לפני מבחן: 2–3 סבבים</span>
+    </div>
+    <div id="flashHost" class="grid"></div>
   </div>
 
   <div id="gameArea" class="card">
     <div class="bigTitle">
       <h2>המשחק</h2>
-      <p class="muted">לחצו "התחל משחק" כדי לקבל משימות</p>
+      <p class="muted">לחצו "התחל משחק"</p>
     </div>
     <div class="hr"></div>
     <div id="taskHost"></div>
   </div>
-
-  <div id="practiceArea" class="card">
-    <div class="bigTitle">
-      <h2>תרגול חופשי</h2>
-      <p class="muted">מילים עם פירוש ושמיעה, בלי ניקוד</p>
-    </div>
-    <div class="hr"></div>
-    <div id="wordList"></div>
-  </div>
-
 </main>
 
 <div id="confetti" class="confetti" hidden></div>
 
 <script>
 /* =========================
-   DATA: כאן הכי קל לעדכן
-   =========================
-   מוסיפים סט חדש תחת decks.
-   כל סט יכול להכיל:
-   vocab: [{en,he}]
-   complete: [{template, choices, answer}]
-   yesno: [{statement, answer:true/false}]
-   listening: [{title, transcript, questions:[mcq]}]
-   readings: [{title, text, questions:[mcq]}]
-*/
-
+   DATA: רק כאן מעדכנים
+   ========================= */
 const DATA = {
   settings: {
     defaultVoiceLang: "en-US",
     speechRate: 0.95,
     speechPitch: 1.0,
     speechVolume: 1.0,
+    flashcardCount: 18,
+    ensureReadingInGame: true,  // תמיד יכניס לפחות משימת קריאה אחת אם יש קטעים
+    ensureListeningInGame: true // תמיד יכניס לפחות משימת האזנה אחת אם יש
   },
 
   decks: [
     {
       id: "unit2_main",
-      name: "Unit 2 - כל החומר",
+      name: "Unit 2 + מילים חדשות + יחיד/רבים",
       vocab: [
+        // Unit 2 (מהדפים הקודמים)
         { en:"something", he:"משהו" },
         { en:"sick", he:"חולה" },
         { en:"plate", he:"צלחת" },
@@ -203,30 +216,72 @@ const DATA = {
         { en:"more", he:"עוד / יותר" },
         { en:"a quarter to", he:"רבע ל-" },
 
-        { en:"car", he:"מכונית" },
-        { en:"bird", he:"ציפור" },
+        // מילים חדשות מהתמונות
+        { en:"shelf", he:"מדף" },
+        { en:"peach", he:"אפרסק" },
+        { en:"pepper", he:"פלפל" },
+        { en:"baby", he:"תינוק" },
+        { en:"box", he:"קופסה" },
+        { en:"dress", he:"שמלה" },
+        { en:"tomato", he:"עגבניה" },
+        { en:"dessert", he:"קינוח" },
+        { en:"carrot", he:"גזר" },
+        { en:"foot", he:"כף רגל" },
+        { en:"sandwich", he:"כריך" },
+        { en:"candy", he:"ממתק" },
+        { en:"onion", he:"בצל" },
+        { en:"wolf", he:"זאב" },
+        { en:"fox", he:"שועל" },
+        { en:"knife", he:"סכין" },
+        { en:"potato", he:"תפוח אדמה" },
+        { en:"sheep", he:"כבשה" },
+        { en:"table", he:"שולחן" },
+        { en:"class", he:"כיתה" },
+        { en:"day", he:"יום" },
+        { en:"leaf", he:"עלה" },
+        { en:"city", he:"עיר" },
+        { en:"man", he:"גבר" },
+        { en:"men", he:"גברים" },
+        { en:"hero", he:"גיבור" },
+        { en:"story", he:"סיפור" },
+        { en:"house", he:"בית" },
+        { en:"child", he:"ילד" },
         { en:"children", he:"ילדים" },
-        { en:"coffee", he:"קפה" },
-        { en:"coat", he:"מעיל" },
-        { en:"boots", he:"מגפיים" },
-        { en:"ice", he:"קרח" },
-        { en:"penguin", he:"פינגווין" },
-        { en:"sign", he:"שלט" },
-        { en:"cold", he:"קר" },
-        { en:"tired", he:"עייף" },
-        { en:"excited", he:"נרגש" },
-        { en:"old", he:"זקן / ישן" },
-        { en:"snow", he:"שלג" },
-        { en:"black", he:"שחור" },
-        { en:"white", he:"לבן" },
-        { en:"big", he:"גדול" },
-        { en:"happy", he:"שמח" },
-        { en:"hat", he:"כובע" },
-        { en:"snowman", he:"איש שלג" },
-        { en:"weather", he:"מזג אוויר" },
+        { en:"mouse", he:"עכבר" },
+        { en:"monkey", he:"קוף" },
+        { en:"party", he:"מסיבה" },
+        { en:"vegetables", he:"ירקות" },
+        { en:"idea", he:"רעיון" },
       ],
 
-      complete: [
+      plurals: [
+        { s:"onion", p:"onions" },
+        { s:"wolf", p:"wolves" },
+        { s:"fox", p:"foxes" },
+        { s:"girl", p:"girls" },
+        { s:"knife", p:"knives" },
+        { s:"shelf", p:"shelves" },
+        { s:"potato", p:"potatoes" },
+        { s:"sheep", p:"sheep" },
+        { s:"table", p:"tables" },
+        { s:"class", p:"classes" },
+        { s:"day", p:"days" },
+        { s:"leaf", p:"leaves" },
+        { s:"sandwich", p:"sandwiches" },
+        { s:"city", p:"cities" },
+        { s:"man", p:"men" },
+        { s:"hero", p:"heroes" },
+        { s:"story", p:"stories" },
+        { s:"foot", p:"feet" },
+        { s:"house", p:"houses" },
+        { s:"dress", p:"dresses" },
+        { s:"child", p:"children" },
+        { s:"mouse", p:"mice" },
+        { s:"monkey", p:"monkeys" },
+        { s:"party", p:"parties" },
+      ],
+
+      fill: [
         { template:"Some people like to drink cola with ___.", choices:["ice","boots","plate","club"], answer:"ice" },
         { template:"He was the first in the ___.", choices:["race","clock","sign","road"], answer:"race" },
         { template:"We want to go to our neighbors ___.", choices:["later","again","tired","winner"], answer:"later" },
@@ -242,16 +297,17 @@ const DATA = {
         { statement:"The LEGO robotics club meets on Thursdays.", answer:false },
         { statement:"The judo club meets at a quarter to five.", answer:true },
         { statement:"Pam wants to do more sports.", answer:false },
+
         { statement:"The Blue Birds are a basketball team.", answer:true },
-        { statement:"The Blue Birds play basketball for one hour every day.", answer:false },
+        { statement:"The Blue Birds practice for one hour every day.", answer:false }, // בטקסט כתוב two hours
         { statement:"The doctor says Zack can’t play basketball for a month.", answer:true },
         { statement:"Zack helped the Blue Birds win many games.", answer:true },
       ],
 
-      listening: [
+      listeningSets: [
         {
           title: "Listening: Clubs",
-          transcript:
+          text:
             "Robin and Pam see a sign about new clubs. The art club is on Tuesdays. The judo club is at a quarter to five. Pam is scared of dogs, so she doesn’t want the Little Vets club. In the end, the girls choose the judo club.",
           questions: [
             {
@@ -288,7 +344,7 @@ const DATA = {
         }
       ],
 
-      readings: [
+      readingSets: [
         {
           title: "Reading: Zack and the Blue Birds",
           text:
@@ -311,10 +367,10 @@ After two hours, the Blue Birds win the game. The players get medals. Zack gets 
       ]
     },
 
-    // דוגמה לסט נוסף (רענון לפי נושא)
+    // סט קטן יותר לדוגמה
     {
       id: "unit2_quick",
-      name: "Unit 2 - חזרה קצרה",
+      name: "חזרה קצרה (מהיר)",
       vocab: [
         { en:"club", he:"מועדון / חוג" },
         { en:"sign", he:"שלט" },
@@ -325,38 +381,39 @@ After two hours, the Blue Birds win the game. The players get medals. Zack gets 
         { en:"ice", he:"קרח" },
         { en:"boots", he:"מגפיים" },
         { en:"snowman", he:"איש שלג" },
-        { en:"weather", he:"מזג אוויר" },
+        { en:"weather", he:"מזג אוויר" }
       ],
-      complete: [
-        { template:"The ___ painted pictures.", choices:["artist","penguin","plate"], answer:"artist" },
-        { template:"Be careful on the ___.", choices:["ice","coffee","road"], answer:"ice" },
-        { template:"It is a quarter to ___.", choices:["five","plate","club"], answer:"five" }, // אפשר להחליף למה שמתאים לכם
+      plurals: [
+        { s:"city", p:"cities" },
+        { s:"party", p:"parties" },
+        { s:"knife", p:"knives" },
+        { s:"wolf", p:"wolves" },
+      ],
+      fill: [
+        { template:"Be careful on the ___.", choices:["ice","club","road"], answer:"ice" },
+        { template:"The ___ painted pictures.", choices:["artist","winner","clock"], answer:"artist" },
+        { template:"I will see you ___.", choices:["later","plate","sick"], answer:"later" }
       ],
       yesno: [
-        { statement:"A penguin can fly.", answer:false },
         { statement:"A snowman is made of snow.", answer:true },
+        { statement:"A penguin can fly.", answer:false }
       ],
-      listening: [],
-      readings: []
+      listeningSets: [],
+      readingSets: []
     }
   ]
 };
 
 /* =========================
-   Audio (Speech)
+   Speech (Audio)
    ========================= */
-let voicesReady = false;
 let chosenVoiceURI = "";
-
-function getVoices() {
-  return window.speechSynthesis?.getVoices?.() || [];
-}
+function getVoices() { return window.speechSynthesis?.getVoices?.() || []; }
 
 function populateVoices() {
   const sel = document.getElementById("voiceSelect");
   sel.innerHTML = "";
   const voices = getVoices();
-
   const english = voices.filter(v => (v.lang || "").toLowerCase().startsWith("en"));
   const list = english.length ? english : voices;
 
@@ -374,9 +431,7 @@ function populateVoices() {
     chosenVoiceURI = fallback.voiceURI;
   }
 
-  sel.addEventListener("change", () => {
-    chosenVoiceURI = sel.value;
-  });
+  sel.onchange = () => chosenVoiceURI = sel.value;
 }
 
 function pickVoice() {
@@ -387,41 +442,34 @@ function pickVoice() {
 }
 
 function speak(text) {
-  if (!("speechSynthesis" in window)) {
-    alert("אין תמיכה בהשמעה בדפדפן הזה.");
-    return;
-  }
+  if (!("speechSynthesis" in window)) { alert("אין תמיכה בהשמעה בדפדפן הזה."); return; }
   window.speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
   u.rate = DATA.settings.speechRate;
   u.pitch = DATA.settings.speechPitch;
   u.volume = DATA.settings.speechVolume;
-
   const v = pickVoice();
-  if (v) {
-    u.voice = v;
-    u.lang = v.lang;
-  }
+  if (v) { u.voice = v; u.lang = v.lang; }
   window.speechSynthesis.speak(u);
 }
 
 if ("speechSynthesis" in window) {
-  window.speechSynthesis.onvoiceschanged = () => { voicesReady = true; populateVoices(); };
-  setTimeout(() => { voicesReady = true; populateVoices(); }, 300);
+  window.speechSynthesis.onvoiceschanged = populateVoices;
+  setTimeout(populateVoices, 250);
 }
 
 /* =========================
-   State
+   State + Utils
    ========================= */
-const KEY = "unit2_fun_game_v1";
+const KEY = "english_game_clean_v1";
 let state = {
   deckId: DATA.decks[0].id,
   seed: Date.now(),
   score: 0,
   streak: 0,
   stars: 0,
-  currentTasks: [],
-  taskIndex: 0,
+  game: { tasks: [], index: 0, mode: "—" },
+  flashSeed: Date.now()
 };
 
 function loadState() {
@@ -434,44 +482,43 @@ function saveState() {
   localStorage.setItem(KEY, JSON.stringify(state));
   renderTop();
 }
-function resetScore() {
-  state.score = 0;
-  state.streak = 0;
-  state.stars = 0;
-  saveState();
-  renderGame();
-}
 function getDeck() {
   return DATA.decks.find(d => d.id === state.deckId) || DATA.decks[0];
 }
 
-/* =========================
-   Utils
-   ========================= */
 function el(tag, attrs={}, children=[]) {
   const node = document.createElement(tag);
   for (const [k,v] of Object.entries(attrs)) {
     if (k === "class") node.className = v;
-    else if (k.startsWith("on") && typeof v === "function") node.addEventListener(k.slice(2), v);
     else if (k === "html") node.innerHTML = v;
+    else if (k.startsWith("on") && typeof v === "function") node.addEventListener(k.slice(2), v);
     else node.setAttribute(k, v);
   }
   for (const c of children) node.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
   return node;
 }
+
+function prng(seed) {
+  let s = seed >>> 0;
+  return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296);
+}
 function shuffle(arr, seed) {
   const a = arr.slice();
-  let s = seed || Date.now();
-  function rnd() { s = (s * 1664525 + 1013904223) % 4294967296; return s / 4294967296; }
+  const rnd = prng(seed);
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(rnd() * (i + 1));
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
 }
+function sample(arr, n, seed) {
+  return shuffle(arr, seed).slice(0, Math.min(n, arr.length));
+}
+
 function listenBtn(text, label="🔊") {
   return el("button", { class:"listenBtn", type:"button", onclick: () => speak(text) }, [label]);
 }
+
 function feedback(msg, ok) {
   return el("div", { class: "feedback " + (ok ? "good":"bad") }, [msg]);
 }
@@ -483,13 +530,11 @@ function popConfetti() {
   const box = document.getElementById("confetti");
   box.innerHTML = "";
   box.hidden = false;
-
   const colors = ["#2563eb","#16a34a","#f59e0b","#ef4444","#8b5cf6"];
-  for (let i = 0; i < 26; i++) {
+  for (let i = 0; i < 24; i++) {
     const piece = document.createElement("i");
     piece.style.left = Math.floor(Math.random()*100) + "vw";
     piece.style.background = colors[Math.floor(Math.random()*colors.length)];
-    piece.style.transform = `translateY(0) rotate(${Math.random()*180}deg)`;
     piece.style.animationDuration = (650 + Math.random()*500) + "ms";
     box.appendChild(piece);
   }
@@ -497,104 +542,462 @@ function popConfetti() {
 }
 
 /* =========================
-   Build tasks (ריענון)
+   Build Flashcards
+   ========================= */
+function renderFlashcards() {
+  const deck = getDeck();
+  const host = document.getElementById("flashHost");
+  host.innerHTML = "";
+
+  const words = deck.vocab || [];
+  const cards = sample(words, DATA.settings.flashcardCount, state.flashSeed);
+
+  cards.forEach(w => {
+    let flipped = false;
+    const card = el("div", { class:"flashcard" }, [
+      el("div", { class:"tag" }, ["Tap to flip"]),
+      el("div", { class:"front", style:"direction:ltr; font-size:18px;" }, [w.en]),
+      el("div", { class:"back", style:"display:none; font-size:16px;" }, [w.he]),
+      el("div", { style:"display:flex; gap:10px; justify-content:center;" }, [ listenBtn(w.en) ])
+    ]);
+
+    card.addEventListener("click", (e) => {
+      if (e.target && e.target.classList && e.target.classList.contains("listenBtn")) return;
+      flipped = !flipped;
+      const front = card.querySelector(".front");
+      const back = card.querySelector(".back");
+      front.style.display = flipped ? "none" : "block";
+      back.style.display = flipped ? "block" : "none";
+    });
+
+    host.appendChild(card);
+  });
+}
+
+/* =========================
+   Build Game Tasks
    ========================= */
 function buildTasks(taskCount) {
   const deck = getDeck();
-
   const tasks = [];
+  const seed = state.seed;
 
-  // 1) Vocab meaning MCQ
   const vocab = deck.vocab || [];
-  const vocabShuffled = shuffle(vocab, state.seed + 1);
-  vocabShuffled.forEach((w) => {
-    const wrongPool = shuffle(vocab.filter(x => x.en !== w.en), state.seed + w.en.length).slice(0, 3);
-    const choices = shuffle([w.he, ...wrongPool.map(x => x.he)], state.seed + 7);
+  const fill = deck.fill || [];
+  const yesno = deck.yesno || [];
+  const plurals = deck.plurals || [];
+  const listeningSets = deck.listeningSets || [];
+  const readingSets = deck.readingSets || [];
+
+  // Vocab MCQ (meaning)
+  sample(vocab, Math.min(10, vocab.length), seed + 1).forEach(w => {
+    const wrong = sample(vocab.filter(x => x.en !== w.en), 3, seed + w.en.length);
+    const choices = shuffle([w.he, ...wrong.map(x => x.he)], seed + 11);
     tasks.push({
-      type: "vocab_mcq",
-      speakText: w.en,
-      prompt: `מה הפירוש של "${w.en}"?`,
-      sub: "בחר/י תשובה ואז בדיקה",
+      type:"mcq",
+      mode:"Vocabulary",
+      prompt:`מה הפירוש של "${w.en}"?`,
+      speakText:w.en,
+      sub:"בחר/י פירוש נכון",
       choices,
-      answer: w.he
+      answer:w.he
     });
   });
 
-  // 2) Complete sentences
-  const comp = deck.complete || [];
-  shuffle(comp, state.seed + 2).forEach((c) => {
+  // Fill-in
+  sample(fill, Math.min(6, fill.length), seed + 2).forEach(q => {
     tasks.push({
-      type: "complete",
-      speakText: c.template.replace("___", c.answer),
-      prompt: c.template.replace("___", "______"),
-      sub: "בחר/י את המילה הנכונה",
-      choices: c.choices,
-      answer: c.answer
+      type:"mcq",
+      mode:"Fill in",
+      prompt: q.template.replace("___","______"),
+      speakText: q.template.replace("___", q.answer),
+      sub:"בחר/י את המילה הנכונה",
+      choices: q.choices,
+      answer: q.answer
     });
   });
 
-  // 3) Yes/No
-  const yn = deck.yesno || [];
-  shuffle(yn, state.seed + 3).forEach((q) => {
+  // Yes/No
+  sample(yesno, Math.min(6, yesno.length), seed + 3).forEach(q => {
     tasks.push({
-      type: "yesno",
-      speakText: q.statement,
+      type:"mcq",
+      mode:"Yes/No",
       prompt: q.statement,
-      sub: "Yes או No",
-      choices: ["Yes", "No"],
+      speakText: q.statement,
+      sub:"בחר/י Yes או No",
+      choices:["Yes","No"],
       answer: q.answer ? "Yes" : "No"
     });
   });
 
-  // 4) Listening MCQ (use transcript + questions)
-  const listening = deck.listening || [];
-  shuffle(listening, state.seed + 4).forEach((set) => {
-    if (!set.questions || !set.questions.length) return;
-    const qs = shuffle(set.questions, state.seed + 40).slice(0, Math.min(2, set.questions.length));
-    qs.forEach((q) => {
+  // Plurals (singular/plural both directions)
+  sample(plurals, Math.min(7, plurals.length), seed + 4).forEach(p => {
+    const wrongP = sample(plurals.filter(x => x.p !== p.p), 3, seed + p.s.length + 40).map(x => x.p);
+    tasks.push({
+      type:"mcq",
+      mode:"Plurals",
+      prompt:`What is the plural of "${p.s}"?`,
+      speakText: p.s,
+      sub:"Choose the correct plural",
+      choices: shuffle([p.p, ...wrongP], seed + 401),
+      answer: p.p
+    });
+
+    const wrongS = sample(plurals.filter(x => x.s !== p.s), 3, seed + p.p.length + 41).map(x => x.s);
+    tasks.push({
+      type:"mcq",
+      mode:"Plurals",
+      prompt:`What is the singular of "${p.p}"?`,
+      speakText: p.p,
+      sub:"Choose the correct singular",
+      choices: shuffle([p.s, ...wrongS], seed + 402),
+      answer: p.s
+    });
+  });
+
+  // Listening (always shows text context before question)
+  listeningSets.forEach((set, idx) => {
+    const qs = sample(set.questions || [], 2, seed + 50 + idx);
+    qs.forEach(q => {
       tasks.push({
-        type: "listening_mcq",
-        speakText: set.transcript,
-        prompt: `Listening: ${q.prompt}`,
-        sub: "לחץ/י 🔊 כדי לשמוע את כל ההאזנה, ואז ענה/י",
+        type:"mcq",
+        mode:"Listening",
+        contextTitle: set.title,
+        extraText: set.text,         // תמיד מוצג לפני השאלה
+        speakText: set.text,         // 🔊 מקריא את כל ההאזנה
+        prompt: q.prompt,
+        sub:"לחץ/י 🔊 כדי לשמוע את הטקסט, ואז ענה/י",
         choices: q.choices,
         answer: q.choices[q.answerIndex]
       });
     });
   });
 
-  // 5) Reading MCQ
-  const readings = deck.readings || [];
-  shuffle(readings, state.seed + 5).forEach((r) => {
-    if (!r.questions || !r.questions.length) return;
-    const q = shuffle(r.questions, state.seed + 50)[0];
+  // Reading (always shows the reading text before the question)
+  readingSets.forEach((set, idx) => {
+    const q = sample(set.questions || [], 1, seed + 70 + idx)[0];
+    if (!q) return;
     tasks.push({
-      type: "reading_mcq",
-      speakText: r.text,
-      prompt: `Reading: ${q.prompt}`,
-      sub: "לחץ/י 🔊 כדי לשמוע את הטקסט",
+      type:"mcq",
+      mode:"Reading",
+      contextTitle: set.title,
+      extraText: set.text,          // תמיד מוצג לפני השאלה
+      speakText: set.text,
+      prompt: q.prompt,
+      sub:"קרא/י את הטקסט (או 🔊) ואז ענה/י",
       choices: q.choices,
-      answer: q.choices[q.answerIndex],
-      extraText: r.text
+      answer: q.choices[q.answerIndex]
     });
   });
 
-  const final = shuffle(tasks, state.seed + 99).slice(0, taskCount);
+  // Matching (word -> meaning)
+  const matchWords = sample(vocab, Math.min(6, vocab.length), seed + 90);
+  if (matchWords.length >= 4) {
+    const left = shuffle(matchWords.map(w => w.en), seed + 91);
+    const right = shuffle(matchWords.map(w => w.he), seed + 92);
+    tasks.push({
+      type:"match",
+      mode:"Matching",
+      prompt:"התאם מילה לפירוש (בחר מילה ואז פירוש)",
+      sub:"קודם מילה באנגלית ואז הפירוש בעברית",
+      match: { left, right, pairs: matchWords.map(w => ({en:w.en, he:w.he})) }
+    });
+  }
+
+  // Ensure at least one reading/listening if requested
+  if (DATA.settings.ensureReadingInGame && readingSets.length) {
+    const hasReading = tasks.some(t => t.mode === "Reading");
+    if (!hasReading) {
+      const set = readingSets[0];
+      const q = (set.questions || [])[0];
+      if (q) tasks.unshift({
+        type:"mcq",
+        mode:"Reading",
+        contextTitle: set.title,
+        extraText: set.text,
+        speakText: set.text,
+        prompt: q.prompt,
+        sub:"קרא/י את הטקסט (או 🔊) ואז ענה/י",
+        choices: q.choices,
+        answer: q.choices[q.answerIndex]
+      });
+    }
+  }
+
+  if (DATA.settings.ensureListeningInGame && listeningSets.length) {
+    const hasListening = tasks.some(t => t.mode === "Listening");
+    if (!hasListening) {
+      const set = listeningSets[0];
+      const q = (set.questions || [])[0];
+      if (q) tasks.unshift({
+        type:"mcq",
+        mode:"Listening",
+        contextTitle: set.title,
+        extraText: set.text,
+        speakText: set.text,
+        prompt: q.prompt,
+        sub:"לחץ/י 🔊 כדי לשמוע את הטקסט, ואז ענה/י",
+        choices: q.choices,
+        answer: q.choices[q.answerIndex]
+      });
+    }
+  }
+
+  // Final pick
+  const final = sample(tasks, taskCount, seed + 999);
   return final;
 }
 
 /* =========================
-   Rendering
+   Render Top
    ========================= */
 function renderTop() {
   document.getElementById("score").textContent = String(state.score);
   document.getElementById("streak").textContent = String(state.streak);
   document.getElementById("stars").textContent = String(state.stars);
-  document.getElementById("progress").textContent = state.currentTasks.length
-    ? `${state.taskIndex + 1}/${state.currentTasks.length}`
+  document.getElementById("progress").textContent = state.game.tasks.length
+    ? `${state.game.index + 1}/${state.game.tasks.length}`
     : "0";
+  document.getElementById("modeLabel").textContent = state.game.mode || "—";
 }
 
+/* =========================
+   Render Matching Task
+   ========================= */
+function renderMatchTask(task) {
+  const wrap = el("div", { class:"task" });
+
+  wrap.appendChild(el("div", { class:"prompt" }, [task.prompt]));
+  wrap.appendChild(el("div", { class:"sub" }, [task.sub]));
+
+  const info = el("div", { class:"muted" }, ["טיפ: אפשר ללחוץ 🔊 על המילה באנגלית."]);
+  wrap.appendChild(info);
+
+  const leftHost = el("div", { class:"grid", style:"grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));" });
+  const rightHost = el("div", { class:"grid", style:"grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); margin-top:10px;" });
+
+  let selectedEn = null;
+  let matched = new Set();
+  let correctCount = 0;
+
+  function buttonStyle(btn, active) {
+    btn.style.borderColor = active ? "#2563eb" : "#e5e7eb";
+    btn.style.background = active ? "#2563eb10" : "#fff";
+  }
+
+  task.match.left.forEach(enWord => {
+    const btn = el("button", { class:"btn", type:"button" }, [enWord]);
+    btn.style.direction = "ltr";
+    btn.prepend(listenBtn(enWord));
+    btn.onclick = () => {
+      selectedEn = enWord;
+      [...leftHost.querySelectorAll("button")].forEach(b => buttonStyle(b, b === btn));
+    };
+    leftHost.appendChild(btn);
+  });
+
+  task.match.right.forEach(heWord => {
+    const btn = el("button", { class:"btn", type:"button" }, [heWord]);
+    btn.onclick = () => {
+      if (!selectedEn) {
+        wrap.querySelector(".feedback")?.remove();
+        wrap.appendChild(feedback("קודם בחר/י מילה באנגלית.", false));
+        return;
+      }
+      const pair = task.match.pairs.find(p => p.en === selectedEn);
+      const ok = pair && pair.he === heWord;
+
+      wrap.querySelector(".feedback")?.remove();
+      if (ok) {
+        matched.add(selectedEn);
+        correctCount += 1;
+        wrap.appendChild(feedback("נכון! ✅", true));
+        // disable both
+        [...leftHost.querySelectorAll("button")].forEach(b => {
+          if (b.textContent.includes(selectedEn)) b.disabled = true;
+        });
+        btn.disabled = true;
+
+        selectedEn = null;
+        [...leftHost.querySelectorAll("button")].forEach(b => buttonStyle(b, false));
+
+        if (correctCount === task.match.pairs.length) {
+          state.score += 1;
+          state.streak += 1;
+          if (state.streak % 3 === 0) { state.stars += 1; popConfetti(); }
+          saveState();
+          setTimeout(nextTask, 600);
+        }
+      } else {
+        state.streak = 0;
+        saveState();
+        wrap.appendChild(feedback("לא נכון. נסה/י שוב.", false));
+      }
+    };
+    rightHost.appendChild(btn);
+  });
+
+  wrap.appendChild(leftHost);
+  wrap.appendChild(rightHost);
+
+  wrap.appendChild(el("div", { class:"row", style:"margin-top:10px;" }, [
+    el("button", { class:"btn", type:"button", onclick: nextTask }, ["דלג/י"])
+  ]));
+
+  return wrap;
+}
+
+/* =========================
+   Render MCQ Task
+   ========================= */
+function renderMcqTask(task) {
+  const wrap = el("div", { class:"task" });
+
+  wrap.appendChild(el("div", { class:"row" }, [
+    el("div", {}, [
+      el("div", { class:"prompt" }, [task.prompt]),
+      el("div", { class:"sub" }, [task.sub || ""])
+    ]),
+    el("div", { style:"display:flex; gap:10px; justify-content:flex-start; flex-wrap:wrap;" }, [
+      listenBtn(task.speakText || task.prompt),
+      task.extraText ? el("button", { class:"btn", type:"button", onclick: () => speak(task.extraText) }, ["🔊 כל הטקסט"]) : el("span", { class:"muted" }, [""])
+    ])
+  ]));
+
+  // Always show context text BEFORE questions when present
+  if (task.extraText) {
+    wrap.appendChild(el("div", { class:"readingBox" }, [task.extraText]));
+  }
+
+  const answers = el("div", { class:"answers" });
+  const name = "q_" + state.game.index + "_" + Math.random().toString(16).slice(2);
+
+  (task.choices || []).forEach(ch => {
+    answers.appendChild(
+      el("label", {}, [
+        el("input", { type:"radio", name, value: ch }),
+        ch
+      ])
+    );
+  });
+
+  wrap.appendChild(answers);
+
+  const btnRow = el("div", { class:"row" }, [
+    el("button", { class:"btn primary", type:"button" }, ["בדיקה"]),
+    el("button", { class:"btn", type:"button" }, ["דלג/י"])
+  ]);
+
+  const checkBtn = btnRow.children[0];
+  const skipBtn  = btnRow.children[1];
+
+  checkBtn.onclick = () => {
+    wrap.querySelector(".feedback")?.remove();
+    const chosen = wrap.querySelector(`input[name="${name}"]:checked`);
+    if (!chosen) { wrap.appendChild(feedback("בחר/י תשובה קודם.", false)); return; }
+
+    const ok = chosen.value === task.answer;
+    if (ok) {
+      state.score += 1;
+      state.streak += 1;
+      if (state.streak % 3 === 0) { state.stars += 1; popConfetti(); }
+      wrap.appendChild(feedback("נכון! ✅", true));
+    } else {
+      state.streak = 0;
+      wrap.appendChild(feedback(`לא. התשובה: ${task.answer}`, false));
+    }
+    saveState();
+    setTimeout(nextTask, 700);
+  };
+
+  skipBtn.onclick = () => {
+    state.streak = 0;
+    saveState();
+    nextTask();
+  };
+
+  wrap.appendChild(btnRow);
+  return wrap;
+}
+
+/* =========================
+   Game Flow
+   ========================= */
+function startGame() {
+  const taskCount = Math.max(6, Math.min(30, Number(document.getElementById("taskCount").value || 14)));
+  state.seed = Date.now();
+  state.game.tasks = buildTasks(taskCount);
+  state.game.index = 0;
+  state.game.mode = state.game.tasks[0]?.mode || "—";
+  saveState();
+  renderGame();
+  window.scrollTo({ top: document.getElementById("gameArea").offsetTop - 10, behavior:"smooth" });
+}
+
+function nextTask() {
+  if (!state.game.tasks.length) return;
+  if (state.game.index < state.game.tasks.length - 1) {
+    state.game.index += 1;
+    state.game.mode = state.game.tasks[state.game.index]?.mode || "—";
+    saveState();
+    renderGame();
+    window.scrollTo({ top: document.getElementById("gameArea").offsetTop - 10, behavior:"smooth" });
+  } else {
+    endGame();
+  }
+}
+
+function endGame() {
+  const host = document.getElementById("taskHost");
+  host.innerHTML = "";
+
+  host.appendChild(
+    el("div", { class:"card", style:"background:#111827; border-color:#111827; color:#fff;" }, [
+      el("div", { class:"bigTitle" }, [
+        el("h2", {}, ["סיימת! 🎉"]),
+        el("p", { class:"muted", style:"color:#cbd5e1;" }, ["רענון ואז עוד סיבוב"])
+      ]),
+      el("div", { class:"hr", style:"background:#334155;" }),
+      el("div", { class:"row" }, [
+        el("span", { class:"pill" }, [el("b", {}, ["ניקוד"]), " " + state.score]),
+        el("span", { class:"pill" }, [el("b", {}, ["כוכבים"]), " " + state.stars + " ⭐"]),
+        el("span", { class:"pill" }, [el("b", {}, ["רצף"]), " " + state.streak]),
+      ]),
+      el("div", { style:"margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;" }, [
+        el("button", { class:"btn warn", type:"button", onclick: startGame }, ["עוד משחק"]),
+        el("button", { class:"btn", type:"button", onclick: () => { state.flashSeed = Date.now(); renderFlashcards(); saveState(); } }, ["כרטיסיות חדשות"]),
+      ])
+    ])
+  );
+
+  popConfetti();
+  state.game.tasks = [];
+  state.game.index = 0;
+  state.game.mode = "—";
+  saveState();
+}
+
+function renderGame() {
+  const host = document.getElementById("taskHost");
+  host.innerHTML = "";
+  if (!state.game.tasks.length) {
+    host.appendChild(el("div", { class:"muted" }, ["לחצו 'התחל משחק' כדי להתחיל."]));
+    renderTop();
+    return;
+  }
+
+  const task = state.game.tasks[state.game.index];
+  state.game.mode = task.mode || "—";
+
+  if (task.type === "match") host.appendChild(renderMatchTask(task));
+  else host.appendChild(renderMcqTask(task));
+
+  renderTop();
+}
+
+/* =========================
+   UI init
+   ========================= */
 function renderDeckSelect() {
   const sel = document.getElementById("deckSelect");
   sel.innerHTML = "";
@@ -605,215 +1008,46 @@ function renderDeckSelect() {
     sel.appendChild(opt);
   });
   sel.value = state.deckId;
-  sel.addEventListener("change", () => {
+  sel.onchange = () => {
     state.deckId = sel.value;
     state.seed = Date.now();
-    state.currentTasks = [];
-    state.taskIndex = 0;
+    state.flashSeed = Date.now();
+    state.game.tasks = [];
+    state.game.index = 0;
+    state.game.mode = "—";
     saveState();
-    renderPractice();
+    renderFlashcards();
     renderGame();
-  });
+  };
 }
 
-function renderPractice() {
-  const deck = getDeck();
-  const host = document.getElementById("wordList");
-  host.innerHTML = "";
-
-  const items = deck.vocab || [];
-  const chunk = shuffle(items, state.seed + 123).slice(0, Math.min(24, items.length));
-
-  chunk.forEach(w => {
-    host.appendChild(
-      el("div", { class:"row", style:"border:1px solid #e5e7eb; border-radius:14px; padding:10px 12px; margin-bottom:8px; background:#fff;" }, [
-        el("div", {}, [ el("b", {}, [w.en]), el("div", { class:"muted" }, [w.he]) ]),
-        el("div", { style:"display:flex; gap:10px; justify-content:flex-start;" }, [
-          listenBtn(w.en),
-          el("button", { class:"btn", type:"button", onclick: () => speak(w.en + ". " + w.he) }, ["🔊 מילה + פירוש"])
-        ])
-      ])
-    );
-  });
-
-  host.appendChild(el("div", { class:"muted" }, ["רוצה עוד מילים אחרות? לחץ/י למעלה על רענן משחק."]));
-}
-
-function renderGame() {
-  const host = document.getElementById("taskHost");
-  host.innerHTML = "";
-
-  if (!state.currentTasks.length) {
-    host.appendChild(el("div", { class:"muted" }, ["עדיין לא התחלת משחק. לחץ/י על 'התחל משחק'."]));
-    renderTop();
-    return;
-  }
-
-  const task = state.currentTasks[state.taskIndex];
-  const taskBox = el("div", { class:"task" });
-
-  const header = el("div", { class:"row" }, [
-    el("div", {}, [
-      el("div", { class:"prompt" }, [task.prompt]),
-      el("div", { class:"sub" }, [task.sub || ""])
-    ]),
-    el("div", { style:"display:flex; gap:10px; justify-content:flex-start; flex-wrap:wrap;" }, [
-      listenBtn(task.speakText || task.prompt, "🔊"),
-      el("button", { class:"btn", type:"button", onclick: () => speak(task.prompt) }, ["🔊 שאלה"]),
-    ])
-  ]);
-
-  taskBox.appendChild(header);
-
-  if (task.extraText) {
-    taskBox.appendChild(el("div", { class:"readingBox" }, [task.extraText]));
-  }
-
-  const answers = el("div", { class:"answers" });
-  const name = "q_" + state.taskIndex;
-
-  task.choices.forEach(ch => {
-    answers.appendChild(
-      el("label", {}, [
-        el("input", { type:"radio", name, value:ch }),
-        ch
-      ])
-    );
-  });
-
-  taskBox.appendChild(answers);
-
-  const btnRow = el("div", { class:"row" }, [
-    el("button", { class:"btn primary", id:"checkBtn", type:"button" }, ["בדיקה"]),
-    el("button", { class:"btn", id:"skipBtn", type:"button" }, ["דלג/י"])
-  ]);
-
-  taskBox.appendChild(btnRow);
-
-  const checkBtn = btnRow.querySelector("#checkBtn");
-  const skipBtn = btnRow.querySelector("#skipBtn");
-
-  checkBtn.addEventListener("click", () => {
-    const chosen = taskBox.querySelector(`input[name="${name}"]:checked`);
-    const oldFb = taskBox.querySelector(".feedback");
-    if (oldFb) oldFb.remove();
-
-    if (!chosen) {
-      taskBox.appendChild(feedback("בחר/י תשובה קודם.", false));
-      return;
-    }
-
-    const ok = chosen.value === task.answer;
-
-    if (ok) {
-      state.score += 1;
-      state.streak += 1;
-
-      if (state.streak % 3 === 0) {
-        state.stars += 1;
-        popConfetti();
-        taskBox.appendChild(feedback("רצף 3 נכון! קיבלת כוכב ⭐", true));
-      } else {
-        taskBox.appendChild(feedback("נכון! ✅", true));
-      }
-    } else {
-      state.streak = 0;
-      taskBox.appendChild(feedback(`לא בדיוק. התשובה: ${task.answer}`, false));
-    }
-
-    saveState();
-    goNextAfter(650);
-  });
-
-  skipBtn.addEventListener("click", () => {
-    const oldFb = taskBox.querySelector(".feedback");
-    if (oldFb) oldFb.remove();
-    state.streak = 0;
-    saveState();
-    goNextAfter(150);
-  });
-
-  host.appendChild(taskBox);
-  renderTop();
-}
-
-function goNextAfter(ms) {
-  setTimeout(() => {
-    if (state.taskIndex < state.currentTasks.length - 1) {
-      state.taskIndex += 1;
-      saveState();
-      renderGame();
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    } else {
-      endGame();
-    }
-  }, ms);
-}
-
-function endGame() {
-  const host = document.getElementById("taskHost");
-  host.innerHTML = "";
-
-  const msg = el("div", { class:"card", style:"background:#111827; color:#fff; border-color:#111827;" }, [
-    el("div", { class:"bigTitle" }, [
-      el("h2", {}, ["סיימת משחק!"]),
-      el("div", { class:"muted", style:"color:#cbd5e1;" }, ["בוא נרענן ונעשה עוד סיבוב"])
-    ]),
-    el("div", { class:"hr", style:"background:#334155;" }),
-    el("div", { class:"row" }, [
-      el("span", { class:"pill" }, [el("b", {}, ["ניקוד"]), " " + state.score]),
-      el("span", { class:"pill" }, [el("b", {}, ["כוכבים"]), " " + state.stars + " ⭐"]),
-      el("span", { class:"pill" }, [el("b", {}, ["רצף מקס"]), " " + state.streak]),
-    ]),
-    el("div", { style:"margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;" }, [
-      el("button", { class:"btn warn", type:"button", onclick: () => { state.seed = Date.now(); startGame(); } }, ["עוד משחק חדש"]),
-      el("button", { class:"btn", type:"button", onclick: () => { renderPractice(); } }, ["תרגול מילים"]),
-    ])
-  ]);
-
-  host.appendChild(msg);
-  popConfetti();
-  state.currentTasks = [];
-  state.taskIndex = 0;
-  saveState();
-  renderTop();
-}
-
-/* =========================
-   Controls
-   ========================= */
-function startGame() {
-  const count = Math.max(5, Math.min(30, Number(document.getElementById("taskCount").value || 12)));
-  state.currentTasks = buildTasks(count);
-  state.taskIndex = 0;
-  saveState();
-  renderGame();
-}
-
-function refreshGame() {
-  state.seed = Date.now();
-  state.currentTasks = [];
-  state.taskIndex = 0;
-  saveState();
-  renderPractice();
-  renderGame();
-}
-
-/* =========================
-   Init
-   ========================= */
 loadState();
 renderDeckSelect();
-renderPractice();
+renderFlashcards();
 renderGame();
 renderTop();
 
-document.getElementById("startBtn").addEventListener("click", startGame);
-document.getElementById("refreshBtn").addEventListener("click", refreshGame);
-document.getElementById("resetBtn").addEventListener("click", () => {
-  if (confirm("לאפס ניקוד, רצף וכוכבים?")) resetScore();
-});
+document.getElementById("startBtn").onclick = startGame;
+document.getElementById("refreshBtn").onclick = () => {
+  state.seed = Date.now();
+  state.game.tasks = [];
+  state.game.index = 0;
+  state.game.mode = "—";
+  saveState();
+  renderFlashcards();
+  renderGame();
+};
+document.getElementById("newCardsBtn").onclick = () => {
+  state.flashSeed = Date.now();
+  saveState();
+  renderFlashcards();
+};
+document.getElementById("resetBtn").onclick = () => {
+  if (!confirm("לאפס ניקוד, רצף וכוכבים?")) return;
+  state.score = 0; state.streak = 0; state.stars = 0;
+  saveState();
+  renderTop();
+};
 </script>
-
 </body>
 </html>
