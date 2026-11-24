@@ -87,6 +87,11 @@ nav button.active,nav button:hover{background:#fff;color:#764ba2;font-weight:700
     <button id="tab-build"     onclick="setMode('build')">🔨 בנה משפט</button>
     <button id="tab-translate" onclick="setMode('translate')">🌍 תרגום</button>
     <button id="tab-match"     onclick="setMode('match')">🔗 התאמה</button>
+    <button id="tab-listen" onclick="setMode('listen')">🎧 האזנה</button>
+    <button id="tab-spell" onclick="setMode('spell')">⌨️ איות</button>
+    <button id="tab-scramble" onclick="setMode('scramble')">🔀 סדר אותיות</button>
+    <button id="tab-memory" onclick="setMode('memory')">🧠 זיכרון</button>
+    <button id="tab-speed" onclick="setMode('speed')">⏱️ סבב מהיר</button>
   </nav>
   <div id="gc"></div>
 </div>
@@ -147,6 +152,85 @@ const VOCAB = [
   {en:'next',           he:'הבא / הבאה'},
   {en:'take care of',   he:'לטפל ב'},
   {en:'which',          he:'איזה'},
+  // ── תמונה 4 (Unit Check – Parts 1-3) ──
+  {en:'about',           he:'על / בערך'},
+  {en:'afraid',          he:'מפחד'},
+  {en:'arrive',          he:'להגיע'},
+  {en:'catch (a train)', he:'לתפוס (רכבת)'},
+  {en:'clever',          he:'חכם'},
+  {en:'comfortable',     he:'נוח'},
+  {en:'cost',            he:'לעלות / עלות'},
+  {en:'Dear ...',        he:'...יקר / יקרה'},
+  {en:'decide',          he:'להחליט'},
+  {en:'directly',        he:'ישירות'},
+  {en:'famous',          he:'מפורסם'},
+  {en:'get off',         he:'לרדת (מרכבת/אוטובוס)'},
+  {en:'get on',          he:'לעלות (על רכבת/אוטובוס)'},
+  {en:'glad',            he:'שמח'},
+  {en:'hit',             he:'להכות / מכה'},
+  {en:'island',          he:'אי'},
+  {en:'leave',           he:'לעזוב'},
+  {en:'love',            he:'לאהוב / אהבה'},
+  {en:'million',         he:'מיליון'},
+  {en:'mountain',        he:'הר'},
+  {en:'nature',          he:'טבע'},
+  {en:'order',           he:'להזמין / הזמנה'},
+  {en:'pick',            he:'לבחור / לקטוף'},
+  {en:'popular',         he:'פופולרי'},
+  {en:'reason',          he:'סיבה'},
+  {en:'return',          he:'לחזור / להחזיר'},
+  {en:'saw',             he:'ראה (עבר של see)'},
+  {en:'several',         he:'כמה / מספר'},
+  {en:'still',           he:'עדיין'},
+  {en:'take (something) away', he:'לקחת (משהו) משם'},
+  {en:'take (something) off',  he:'להוריד / להסיר (משהו)'},
+  {en:'take a picture',  he:'לצלם תמונה'},
+  {en:'take a train',    he:'לנסוע ברכבת'},
+  {en:'Take care!',      he:'!שמור על עצמך'},
+  {en:'team',            he:'קבוצה / צוות'},
+  {en:'the cold',        he:'הצטננות / הקור'},
+  {en:'thousand',        he:'אלף'},
+  {en:'visitor',         he:'מבקר / אורח'},
+  {en:'welcome',         he:'ברוך הבא'},
+  // ── תמונה 4 (Unit Check – Parts 4-5) ──
+  {en:'a while',         he:'זמן מה'},
+  {en:'against',         he:'נגד'},
+  {en:'all the time',    he:'כל הזמן'},
+  {en:'almost',          he:'כמעט'},
+  {en:'believe',         he:'להאמין'},
+  {en:'both',            he:'שניהם'},
+  {en:'collect',         he:'לאסוף'},
+  {en:'come home',       he:'לחזור הביתה'},
+  {en:'competition',     he:'תחרות'},
+  {en:'could',           he:'יכול (עבר) / אפשר'},
+  {en:'date',            he:'תאריך / דייט'},
+  {en:'excellent',       he:'מצוין'},
+  {en:'feel well',       he:'להרגיש טוב'},
+  {en:'full',            he:'מלא / שבע'},
+  {en:'get better',      he:'להשתפר / להבריא'},
+  {en:'get the flu',     he:'לחלות בשפעת'},
+  {en:'if',              he:'אם'},
+  {en:'instead',         he:'במקום'},
+  {en:'invite',          he:'להזמין (לאירוע)'},
+  {en:'keep',            he:'לשמור / להמשיך'},
+  {en:'kiss',            he:'לנשק / נשיקה'},
+  {en:'make a mistake',  he:'לעשות טעות'},
+  {en:'mean',            he:'להתכוון / לציין'},
+  {en:'medical',         he:'רפואי'},
+  {en:'message',         he:'הודעה'},
+  {en:'miss',            he:'להתגעגע / לפספס'},
+  {en:'much',            he:'הרבה'},
+  {en:'nurse',           he:'אחות'},
+  {en:'only',            he:'רק'},
+  {en:'perfect',         he:'מושלם'},
+  {en:'pocket',          he:'כיס'},
+  {en:'really',          he:'באמת'},
+  {en:'see',             he:'לראות'},
+  {en:'should',          he:'צריך / כדאי'},
+  {en:'so',              he:'אז / כל כך'},
+  {en:'sorry',           he:'מצטער'},
+  {en:'tasty',           he:'טעים'},
+  {en:'tell a story',    he:'לספר סיפור'},
 ];
 
 const FILLIN = [
@@ -174,7 +258,27 @@ const FILLIN = [
   {q:'Don\'t eat ___ — it is too much for one person.', ans:'everything',   opts:['everything','anything','all','less']},
   {q:'Good ___, Mrs. Cohen!',                           ans:'afternoon',    opts:['afternoon','evening','supper','morning']},
   {q:'I want ___ milk, not more.',                      ans:'less',         opts:['less','all','any','another']},
-  {q:'___ one is yours?',                               ans:'which',        opts:['which','any','all','another']}
+  {q:'___ one is yours?',                               ans:'which',        opts:['which','any','all','another']},
+  {q:'We must ___ the train at 8 o\'clock.',            ans:'catch',        opts:['catch','hit','pick','leave']},
+  {q:'This sofa is very ___.',                          ans:'comfortable',  opts:['comfortable','famous','tasty','full']},
+  {q:'How much does this bag ___?',                     ans:'cost',         opts:['cost','hit','pick','love']},
+  {q:'The Eiffel Tower is very ___.',                   ans:'famous',       opts:['famous','afraid','full','sorry']},
+  {q:'We ___ at the station at noon.',                  ans:'arrive',       opts:['arrive','decide','invite','believe']},
+  {q:'She is ___ of dogs.',                             ans:'afraid',       opts:['afraid','glad','clever','perfect']},
+  {q:'I am ___ to see you!',                            ans:'glad',         opts:['glad','afraid','sorry','full']},
+  {q:'Japan is an ___ in Asia.',                        ans:'island',       opts:['island','mountain','team','pocket']},
+  {q:'We climb a high ___ on Saturday.',                ans:'mountain',     opts:['mountain','message','nurse','visitor']},
+  {q:'He has a bad cold, so he should ___ home.',       ans:'stay',         opts:['stay','invite','collect','miss']},
+  {q:'The ___ helps sick people at the hospital.',      ans:'nurse',        opts:['nurse','team','visitor','pocket']},
+  {q:'I have a ___ for you: please call me.',           ans:'message',      opts:['message','nature','reason','date']},
+  {q:'She wants to ___ all her friends to the party.',  ans:'invite',       opts:['invite','collect','hit','return']},
+  {q:'I am ___ I made a mistake. Sorry!',               ans:'sorry',        opts:['sorry','tasty','full','perfect']},
+  {q:'The pizza is ___. I love it!',                    ans:'tasty',        opts:['tasty','medical','full','sorry']},
+  {q:'I ___ my grandma when she is far away.',          ans:'miss',         opts:['miss','hit','pick','order']},
+  {q:'He ate a lot and now he is ___.',                 ans:'full',         opts:['full','glad','clever','afraid']},
+  {q:'You ___ drink water when you have the flu.',      ans:'should',       opts:['should','could','against','instead']},
+  {q:'Our school ___ won the competition.',             ans:'team',         opts:['team','pocket','island','reason']},
+  {q:'___ of them are happy.',                          ans:'Both',         opts:['Both','Only','Much','Still']}
 ];
 
 const SENTENCE_BUILD = [
@@ -219,7 +323,28 @@ const SENTENCE_BUILD = [
    opts:['He asks for some cream.','He cooks some cream.','He calls some cream.','He takes care of some cream.']},
   {he:'אחר הצהריים טובים!',
    ans:'Good afternoon!',
-   opts:['Good afternoon!','Good evening!','Good supper!','Good morning!']}
+   opts:['Good afternoon!','Good evening!','Good supper!','Good morning!']},
+  {he:'אנחנו צריכים לתפוס את הרכבת.',
+   ans:'We must catch the train.',
+   opts:['We must catch the train.','We must hit the train.','We must pick the train.','We must leave the cold.']},
+  {he:'היא מפחדת מהכלב הגדול.',
+   ans:'She is afraid of the big dog.',
+   opts:['She is afraid of the big dog.','She is glad of the big dog.','She is full of the big dog.','She is clever of the big dog.']},
+  {he:'הם מזמינים את כל החברים שלהם.',
+   ans:'They invite all their friends.',
+   opts:['They invite all their friends.','They collect all their friends.','They miss all their pockets.','They hit all their friends.']},
+  {he:'האחות אומרת: שמור על עצמך!',
+   ans:'The nurse says: Take care!',
+   opts:['The nurse says: Take care!','The nurse says: Take a train!','The team says: Take care!','The nurse says: Take a picture!']},
+  {he:'אני רוצה לצלם תמונה של ההר.',
+   ans:'I want to take a picture of the mountain.',
+   opts:['I want to take a picture of the mountain.','I want to take a train of the mountain.','I want to take care of the island.','I want to take off the mountain.']},
+  {he:'הוא חולה, אז הוא צריך להישאר בבית.',
+   ans:'He is sick, so he should stay home.',
+   opts:['He is sick, so he should stay home.','He is full, so he should stay home.','He is sorry, so he should go home.','He is sick, so he could not stay.']},
+  {he:'הפיצה הזאת טעימה מאוד.',
+   ans:'This pizza is very tasty.',
+   opts:['This pizza is very tasty.','This pizza is very famous.','This pizza is very afraid.','This pizza is very medical.']}
 ];
 
 const TRANSLATE = [
@@ -261,7 +386,25 @@ const TRANSLATE = [
    opts:['אנחנו אוכלים ארוחת ערב בערב.','אנחנו שותים תה בבוקר.','אנחנו מבשלים ארוחת בוקר בערב.','אנחנו הולכים לחנות הספרים בערב.']},
   {en:'She buys a toy at the bookshop.',
    ans:'היא קונה צעצוע בחנות הספרים.',
-   opts:['היא קונה צעצוע בחנות הספרים.','היא מוצאת צעצוע בפינה.','היא מבקשת צעצוע מהלקוח.','היא מבשלת צעצוע בחנות הספרים.']}
+   opts:['היא קונה צעצוע בחנות הספרים.','היא מוצאת צעצוע בפינה.','היא מבקשת צעצוע מהלקוח.','היא מבשלת צעצוע בחנות הספרים.']},
+  {en:'I am glad to see you.',
+   ans:'אני שמח לראות אותך.',
+   opts:['אני שמח לראות אותך.','אני מפחד לראות אותך.','אני מתגעגע אליך.','אני מצטער לראות אותך.']},
+  {en:'She is afraid of the cold.',
+   ans:'היא מפחדת מהקור.',
+   opts:['היא מפחדת מהקור.','היא שמחה בקור.','היא אוהבת את ההר.','היא מצטערת על ההודעה.']},
+  {en:'You should take care of yourself.',
+   ans:'כדאי לך לשמור על עצמך.',
+   opts:['כדאי לך לשמור על עצמך.','אתה חייב לצלם את עצמך.','אתה יכול להזמין את עצמך.','לא כדאי לך לחכות.']},
+  {en:'The team won the competition.',
+   ans:'הקבוצה ניצחה בתחרות.',
+   opts:['הקבוצה ניצחה בתחרות.','הקבוצה הפסידה במשחק.','המבקר ניצח בתחרות.','הקבוצה הזמינה תחרות.']},
+  {en:'We take a train to the island.',
+   ans:'אנחנו נוסעים ברכבת לאי.',
+   opts:['אנחנו נוסעים ברכבת לאי.','אנחנו מטפסים על ההר.','אנחנו יורדים מהרכבת.','אנחנו מצלמים את האי.']},
+  {en:'I miss my friends all the time.',
+   ans:'אני מתגעגע לחברים שלי כל הזמן.',
+   opts:['אני מתגעגע לחברים שלי כל הזמן.','אני מזמין את החברים שלי לפעמים.','אני רואה את החברים שלי רק בשבת.','אני מפחד מהחברים שלי כל הזמן.']}
 ];
 
 const MATCHING_POOL = [
@@ -284,7 +427,27 @@ const MATCHING_POOL = [
   {en:'toy',          he:'צעצוע'},
   {en:'tea',          he:'תה'},
   {en:'jam',          he:'ריבה'},
-  {en:'knee',         he:'ברך'}
+  {en:'knee',         he:'ברך'},
+  {en:'afraid',       he:'מפחד'},
+  {en:'clever',       he:'חכם'},
+  {en:'famous',       he:'מפורסם'},
+  {en:'island',       he:'אי'},
+  {en:'mountain',     he:'הר'},
+  {en:'nature',       he:'טבע'},
+  {en:'visitor',      he:'מבקר'},
+  {en:'thousand',     he:'אלף'},
+  {en:'competition',  he:'תחרות'},
+  {en:'nurse',        he:'אחות'},
+  {en:'message',      he:'הודעה'},
+  {en:'pocket',       he:'כיס'},
+  {en:'tasty',        he:'טעים'},
+  {en:'perfect',      he:'מושלם'},
+  {en:'invite',       he:'להזמין'},
+  {en:'believe',      he:'להאמין'},
+  {en:'almost',       he:'כמעט'},
+  {en:'instead',      he:'במקום'},
+  {en:'excellent',    he:'מצוין'},
+  {en:'comfortable',  he:'נוח'}
 ];
 
 // ═══════════════════════════════════════════════════════════════
@@ -375,7 +538,7 @@ function setMode(m){
   document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+m).classList.add('active');
   speechSynthesis && speechSynthesis.cancel();
-  const init={flash:initFlash,vocab:initVocab,fillin:initFillIn,build:initBuild,translate:initTranslate,match:initMatch};
+  const init={flash:initFlash,vocab:initVocab,fillin:initFillIn,build:initBuild,translate:initTranslate,match:initMatch,listen:initListen,spell:initSpell,scramble:initScramble,memory:initMemory,speed:initSpeed};
   init[m]();
 }
 
@@ -685,6 +848,177 @@ function matchClick(side,idx){
     });
     resetStreak();
   }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  G. LISTENING — hear a word, pick the Hebrew meaning
+// ═══════════════════════════════════════════════════════════════
+function initListen(){ G.queue=shuffle(VOCAB); G.qi=0; renderListen(); }
+function renderListen(){
+  if(G.qi>=G.queue.length){doneScreen(initListen);return;}
+  const item=G.queue[G.qi];
+  const opts=shuffle([item,...shuffle(VOCAB.filter(v=>v.en!==item.en)).slice(0,3)]);
+  const box=gc(); box.innerHTML='';
+  box.append(el('div','sec-title','🎧 הקשב ובחר את המשמעות'),el('div','prog',`שאלה ${G.qi+1} מתוך ${G.queue.length}`));
+  const big=button('🔊 לחץ כדי לשמוע','btn btn-blue',()=>speak(item.en));
+  big.style.cssText='display:block;margin:14px auto;font-size:1.3rem;padding:18px 30px';
+  box.appendChild(big);
+  setTimeout(()=>speak(item.en),300);
+  const optDiv=document.createElement('div'); optDiv.className='options';
+  const fb=el('div','fb',''); fb.id='fb';
+  opts.forEach(o=>{
+    const b=document.createElement('div'); b.className='opt'; b.textContent=o.he;
+    if(o.en===item.en) b.dataset.correct='1';
+    b.onclick=()=>{
+      showFeedback(o.en===item.en,b,optDiv.querySelector('[data-correct="1"]'));
+      fb.textContent+=' — '+item.en;
+      setTimeout(()=>{G.qi++;renderListen();},o.en===item.en?1200:1800);
+    };
+    optDiv.appendChild(b);
+  });
+  box.append(optDiv,fb);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  H. SPELLING — see Hebrew, type the English word
+// ═══════════════════════════════════════════════════════════════
+const SINGLE=()=>VOCAB.filter(v=>/^[a-z]+$/i.test(v.en)&&v.en.length>=3);
+function initSpell(){ G.queue=shuffle(SINGLE()); G.qi=0; renderSpell(); }
+function renderSpell(){
+  if(G.qi>=G.queue.length){doneScreen(initSpell);return;}
+  const item=G.queue[G.qi]; let hints=0;
+  const box=gc(); box.innerHTML='';
+  box.append(el('div','sec-title','⌨️ איות — כתוב את המילה באנגלית'),el('div','prog',`שאלה ${G.qi+1} מתוך ${G.queue.length}`));
+  box.appendChild(el('div','q-he','🇮🇱 '+item.he));
+  const inp=document.createElement('input');
+  inp.type='text'; inp.autocomplete='off'; inp.autocapitalize='off'; inp.spellcheck=false; inp.dir='ltr';
+  inp.style.cssText='display:block;width:100%;max-width:320px;margin:10px auto;padding:12px;font-size:1.4rem;text-align:center;border-radius:12px;border:2px solid #667eea;font-family:inherit';
+  const fb=el('div','fb',''); fb.id='fb';
+  const check=()=>{
+    if(inp.disabled||!inp.value.trim())return;
+    const ok=inp.value.trim().toLowerCase()===item.en.toLowerCase();
+    inp.disabled=true; fb.className='fb show '+(ok?'ok':'no');
+    if(ok){fb.textContent='✅ נכון!'; addScore(hints?5:15);} else {fb.textContent='❌ התשובה: '+item.en; resetStreak();}
+    speak(item.en);
+    setTimeout(()=>{G.qi++;renderSpell();},ok?1100:2200);
+  };
+  inp.onkeydown=e=>{if(e.key==='Enter')check();};
+  const row=document.createElement('div'); row.className='btn-row';
+  row.append(
+    button('בדוק','btn btn-green',check),
+    button('💡 רמז','btn btn-blue btn-sm',()=>{hints++; inp.value=item.en.slice(0,hints); inp.focus();}),
+    button('🔊','btn btn-blue btn-sm',()=>speak(item.en))
+  );
+  box.append(inp,row,fb); inp.focus();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  I. SCRAMBLE — rebuild the word from shuffled letters
+// ═══════════════════════════════════════════════════════════════
+function initScramble(){ G.queue=shuffle(SINGLE().filter(v=>v.en.length<=9)); G.qi=0; renderScramble(); }
+function renderScramble(){
+  if(G.qi>=G.queue.length){doneScreen(initScramble);return;}
+  const item=G.queue[G.qi], word=item.en.toLowerCase();
+  let letters=word.split(''); let tries=0;
+  do{letters=shuffle(letters);tries++;}while(letters.join('')===word&&tries<10);
+  const picked=[]; const used=new Array(letters.length).fill(false);
+  const box=gc(); box.innerHTML='';
+  box.append(el('div','sec-title','🔀 סדר את האותיות'),el('div','prog',`שאלה ${G.qi+1} מתוך ${G.queue.length}`),el('div','q-he','🇮🇱 '+item.he));
+  const ans=el('div','q-en',''); ans.style.cssText+=';direction:ltr;min-height:3.2rem;letter-spacing:6px;font-size:1.8rem';
+  const pool=document.createElement('div'); pool.className='btn-row'; pool.style.direction='ltr';
+  const fb=el('div','fb',''); fb.id='fb';
+  const paint=()=>{
+    ans.textContent=picked.map(i=>letters[i]).join('');
+    pool.innerHTML='';
+    letters.forEach((ch,i)=>{
+      const b=button(ch,'btn btn-purple',()=>{
+        used[i]=true; picked.push(i); paint();
+        if(picked.length===letters.length){
+          const ok=ans.textContent===word;
+          fb.className='fb show '+(ok?'ok':'no'); fb.textContent=ok?'✅ נכון!':'❌ נסה שוב';
+          if(ok){addScore(15);speak(item.en);setTimeout(()=>{G.qi++;renderScramble();},1200);}
+          else{resetStreak();setTimeout(()=>{picked.length=0;used.fill(false);fb.className='fb';paint();},900);}
+        }
+      });
+      b.style.cssText+=';min-width:44px;font-size:1.3rem';
+      if(used[i]) b.style.visibility='hidden';
+      pool.appendChild(b);
+    });
+  };
+  const row=document.createElement('div'); row.className='btn-row';
+  row.append(button('↩ מחק','btn btn-blue btn-sm',()=>{const i=picked.pop(); if(i!==undefined){used[i]=false;paint();}}),
+             button('🔊','btn btn-blue btn-sm',()=>speak(item.en)));
+  box.append(ans,pool,row,fb); paint();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  J. MEMORY — flip cards, find English/Hebrew pairs
+// ═══════════════════════════════════════════════════════════════
+function initMemory(){
+  const pairs=shuffle(MATCHING_POOL).slice(0,6);
+  G.mem={cards:shuffle(pairs.flatMap((p,i)=>[{id:i,t:p.en,en:true},{id:i,t:p.he,en:false}])),open:[],done:0,total:pairs.length,moves:0,lock:false};
+  renderMemory();
+}
+function renderMemory(){
+  const m=G.mem, box=gc(); box.innerHTML='';
+  box.append(el('div','sec-title','🧠 משחק זיכרון — מצא זוגות'),el('div','prog',`זוגות: ${m.done}/${m.total} · מהלכים: ${m.moves}`));
+  const grid=document.createElement('div');
+  grid.style.cssText='display:grid;grid-template-columns:repeat(3,1fr);gap:8px;direction:ltr';
+  m.cards.forEach((c,i)=>{
+    const shown=m.open.includes(i)||c.found;
+    const d=document.createElement('div');
+    d.textContent=shown?c.t:'❓';
+    d.style.cssText='min-height:74px;display:flex;align-items:center;justify-content:center;text-align:center;border-radius:12px;padding:6px;font-weight:700;cursor:pointer;color:#fff;font-size:'+(shown?'1rem':'1.6rem')+';background:'+(c.found?'#10b981':shown?'#667eea':'#475569');
+    if(shown&&!c.en) d.style.direction='rtl';
+    d.onclick=()=>{
+      if(m.lock||shown)return;
+      m.open.push(i); if(c.en)speak(c.t);
+      if(m.open.length===2){
+        m.moves++;
+        const [a,b]=m.open;
+        if(m.cards[a].id===m.cards[b].id&&m.cards[a].en!==m.cards[b].en){
+          m.cards[a].found=m.cards[b].found=true; m.open=[]; m.done++; addScore(15);
+          renderMemory(); if(m.done===m.total)setTimeout(()=>doneScreen(initMemory),600);
+        } else { m.lock=true; resetStreak(); renderMemory(); setTimeout(()=>{m.open=[];m.lock=false;renderMemory();},900); }
+      } else renderMemory();
+    };
+    grid.appendChild(d);
+  });
+  box.appendChild(grid);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  K. SPEED ROUND — 60 seconds, as many as you can
+// ═══════════════════════════════════════════════════════════════
+function initSpeed(){
+  G.speed={t:60,right:0,wrong:0}; clearInterval(G.timer); nextSpeed();
+  G.timer=setInterval(()=>{
+    if(G.mode!=='speed'){clearInterval(G.timer);return;}
+    G.speed.t--; const t=document.getElementById('sp-t'); if(t)t.textContent=G.speed.t;
+    if(G.speed.t<=0){clearInterval(G.timer);endSpeed();}
+  },1000);
+}
+function nextSpeed(){
+  const s=G.speed, item=shuffle(VOCAB)[0];
+  const opts=shuffle([item,...shuffle(VOCAB.filter(v=>v.en!==item.en)).slice(0,3)]);
+  const box=gc(); box.innerHTML='';
+  box.append(el('div','sec-title','⏱️ סבב מהיר — 60 שניות'));
+  const bar=el('div','prog',''); bar.innerHTML=`⏳ <b id="sp-t">${s.t}</b> שנ׳ · ✅ ${s.right} · ❌ ${s.wrong}`; box.appendChild(bar);
+  const w=el('span','flip-en',item.en); w.style.cssText='display:block;text-align:center;font-size:1.8rem;margin:8px 0'; box.appendChild(w);
+  const optDiv=document.createElement('div'); optDiv.className='options';
+  opts.forEach(o=>{
+    const b=document.createElement('div'); b.className='opt'; b.textContent=o.he;
+    b.onclick=()=>{ if(s.t<=0)return; if(o.en===item.en){s.right++;addScore(5);}else{s.wrong++;resetStreak();} nextSpeed(); };
+    optDiv.appendChild(b);
+  });
+  box.appendChild(optDiv);
+}
+function endSpeed(){
+  const s=G.speed, box=gc(); box.innerHTML='';
+  const d=document.createElement('div'); d.className='done-screen';
+  d.innerHTML=`<div class="trophy">⏱️</div><p>נגמר הזמן! ✅ ${s.right} נכון · ❌ ${s.wrong} שגוי</p>`;
+  d.appendChild(button('שחק שוב','btn btn-green',initSpeed)); box.appendChild(d);
+  if(s.right>=10)confetti();
 }
 
 // ═══════════════════════════════════════════════════════════════
